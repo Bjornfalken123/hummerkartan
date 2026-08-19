@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#10221f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Hummerkartan · Sjökort och hummerrunda</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
+</head>
+<body>
+  <main id="app">
+    <div id="map" aria-label="Sjökort"></div>
+
+    <aside id="desktopPanel" class="desktop-panel" aria-label="Planering">
+      <header class="desktop-brand">
+        <div class="brand-mark">HK</div>
+        <div class="desktop-brand-copy"><strong>Hummerkartan</strong><small id="desktopSyncText">Startar…</small></div>
+        <button id="desktopThemeBtn" class="icon-btn" type="button" aria-label="Byt dag/natt">☾</button>
+      </header>
+
+      <nav class="desktop-tabs" aria-label="Arbetsyta">
+        <button class="desktop-tab active" data-desktop-tab="plan">Plan</button>
+        <button class="desktop-tab" data-desktop-tab="traps">Burar</button>
+        <button class="desktop-tab" data-desktop-tab="trips">Turer</button>
+        <button class="desktop-tab" data-desktop-tab="catch">Fångst</button>
+      </nav>
+
+      <section class="desktop-pane active" data-desktop-pane="plan">
+        <div class="pane-heading"><div><small>DAGENS ARBETE</small><h1>Planera rundan</h1></div><button id="desktopSyncBtn" class="small-btn">Synka</button></div>
+        <label class="field-label">Datum<input id="planDate" type="date" /></label>
+        <div class="plan-summary">
+          <div><span>Stopp</span><strong id="planStopCount">0</strong></div>
+          <div><span>Sträcka</span><strong id="planDistance">0.0 NM</strong></div>
+          <div><span>Vittja</span><strong id="planTrapCount">0</strong></div>
+        </div>
+        <div class="plan-actions">
+          <button id="addPlannedSpotBtn">＋ Planerad plats</button>
+          <button id="savePlanBtn" class="primary">Spara plan</button>
+        </div>
+        <p id="planHint" class="pane-hint">Välj burar nedan. Dra ordningen med pilarna. Planerade platser läggs genom att klicka på kartan.</p>
+        <div id="planItems" class="plan-items"></div>
+        <div class="section-title"><span>Aktiva burar</span><button id="selectAllPlanBtn" class="text-btn">Lägg till alla</button></div>
+        <div id="planTrapPicker" class="desktop-list"></div>
+      </section>
+
+      <section class="desktop-pane" data-desktop-pane="traps">
+        <div class="pane-heading"><div><small>REGISTER</small><h1>Familjens burar</h1></div><button id="desktopAddTrapBtn" class="small-btn primary">Ny bur</button></div>
+        <div class="desktop-toolbar">
+          <input id="desktopTrapSearch" type="search" placeholder="Sök bur…" />
+          <button id="desktopActiveFilter" class="chip active">Aktiva</button>
+          <button id="desktopAllFilter" class="chip">Alla</button>
+        </div>
+        <div id="desktopTrapList" class="desktop-list"></div>
+      </section>
+
+      <section class="desktop-pane" data-desktop-pane="trips">
+        <div class="pane-heading"><div><small>HISTORIK</small><h1>Tidigare turer</h1></div><button id="clearHistoryTrackBtn" class="small-btn">Dölj spår</button></div>
+        <div id="desktopTripList" class="desktop-list"></div>
+      </section>
+
+      <section class="desktop-pane" data-desktop-pane="catch">
+        <div class="pane-heading"><div><small>FÅNGSTDATA</small><h1>Heatmap</h1></div><button id="desktopHeatmapBtn" class="small-btn">Visa</button></div>
+        <p class="pane-hint">Heatmapen använder genomsnittlig fångst per vittjning vid varje bur. Områden utan historik färgas inte.</p>
+        <div class="heat-stats">
+          <div><span>Vittjningar</span><strong id="heatChecks">0</strong></div>
+          <div><span>Humrar</span><strong id="heatLobsters">0</strong></div>
+          <div><span>Snitt</span><strong id="heatAverage">0.00</strong></div>
+        </div>
+        <div class="heat-legend"><span>Svag fångst</span><div></div><span>Bra fångst</span></div>
+        <div id="catchRanking" class="desktop-list"></div>
+      </section>
+
+      <footer class="desktop-footer">
+        <span id="desktopUser">familj</span>
+        <button id="desktopExportBtn" class="text-btn">Backup</button>
+      </footer>
+    </aside>
+
+    <header class="topbar glass mobile-only">
+      <div class="brand">
+        <span class="brand-mark">HK</span>
+        <div><strong>Hummerkartan</strong><small id="syncText">Startar…</small></div>
+      </div>
+      <div class="top-actions">
+        <button id="heatmapBtn" class="layer-btn" type="button" aria-label="Visa fångstlager">Fångst</button>
+        <button id="themeBtn" class="icon-btn" type="button" aria-label="Byt dag/natt">☾</button>
+        <button id="centerBtn" class="icon-btn" type="button" aria-label="Centrera på båten">◎</button>
+      </div>
+    </header>
+
+    <section class="hud glass mobile-only" aria-label="Navigation">
+      <div><span>Fart</span><strong id="speedValue">0.0</strong><small>kn</small></div>
+      <div><span>Kurs</span><strong id="courseValue">—</strong><small>°</small></div>
+      <div><span>Tur</span><strong id="distanceValue">0.0</strong><small>NM</small></div>
+      <div><span>GPS</span><strong id="accuracyValue">—</strong><small>m</small></div>
+    </section>
+
+    <nav class="primary-actions glass mobile-only" aria-label="Huvudfunktioner">
+      <button id="addTrapBtn" class="primary"><span>＋</span>Sätt bur</button>
+      <button id="tripBtn"><span>▶</span><b id="tripBtnText">Starta tur</b></button>
+      <button id="roundBtn"><span>↝</span>Runda</button>
+      <button id="trapsBtn"><span>●</span>Burarna</button>
+    </nav>
+
+    <aside id="selectedTrapCard" class="selected-card glass hidden" aria-live="polite">
+      <button id="closeSelectedBtn" class="card-close" type="button" aria-label="Stäng">×</button>
+      <div class="selected-head"><div><small>VALD BUR</small><h2 id="selectedName">—</h2></div><div id="selectedDistance" class="distance-badge">—</div></div>
+      <div class="selected-meta"><span id="selectedLast">Inte vittjad</span><span id="selectedCatch">Ingen fångst loggad</span></div>
+      <div class="selected-actions"><button id="checkTrapBtn" class="primary">Vittja</button><button id="navigateTrapBtn">Navigera</button><button id="editTrapBtn">Ändra</button></div>
+    </aside>
+
+    <div id="navBanner" class="nav-banner glass hidden">
+      <div><small>NAVIGERAR TILL</small><strong id="navTargetName">—</strong></div>
+      <div><strong id="navDistance">—</strong><small id="navBearing">—</small></div>
+      <button id="stopNavBtn" class="icon-btn" type="button">×</button>
+    </div>
+
+    <div id="backdrop" class="backdrop hidden"></div>
+
+    <section id="trapsSheet" class="sheet hidden" aria-label="Burarna">
+      <div class="sheet-handle"></div>
+      <header><div><small>FAMILJENS BURAR</small><h2>Burarna</h2></div><button data-close-sheet class="icon-btn">×</button></header>
+      <div class="sheet-toolbar"><button id="showActiveBtn" class="chip active">Aktiva</button><button id="showAllBtn" class="chip">Alla</button><button id="syncBtn" class="chip">Synka</button></div>
+      <div id="trapList" class="list"></div>
+      <footer class="sheet-footer"><button id="exportBtn">Exportera backup</button></footer>
+    </section>
+
+    <section id="trapFormSheet" class="sheet compact hidden" aria-label="Bur">
+      <div class="sheet-handle"></div>
+      <header><div><small id="trapFormEyebrow">NY BUR</small><h2 id="trapFormTitle">Sätt bur</h2></div><button data-close-sheet class="icon-btn">×</button></header>
+      <form id="trapForm" class="form">
+        <input id="trapId" type="hidden" />
+        <label>Namn / nummer<input id="trapName" maxlength="80" required placeholder="B1 eller Kalles grund" /></label>
+        <div class="two-col"><label>Latitud<input id="trapLat" inputmode="decimal" required /></label><label>Longitud<input id="trapLon" inputmode="decimal" required /></label></div>
+        <label>Anteckning<textarea id="trapNotes" rows="2" maxlength="1000" placeholder="Lina, märke, botten…"></textarea></label>
+        <button id="retrieveTrapBtn" type="button" class="danger wide hidden">Markera buren som upptagen</button>
+        <div class="form-actions"><button type="button" data-close-sheet>Avbryt</button><button type="submit" class="primary">Spara bur</button></div>
+      </form>
+    </section>
+
+    <section id="checkSheet" class="sheet compact hidden" aria-label="Vittja bur">
+      <div class="sheet-handle"></div>
+      <header><div><small>VITTJA</small><h2 id="checkTrapName">Bur</h2></div><button data-close-sheet class="icon-btn">×</button></header>
+      <form id="checkForm" class="form">
+        <label>Hummer fångad<div class="counter"><button type="button" data-count="-1">−</button><output id="lobsterCount">0</output><button type="button" data-count="1">＋</button></div></label>
+        <label>Återutsatta<input id="releasedCount" type="number" min="0" value="0" inputmode="numeric" /></label>
+        <label>Anteckning<textarea id="checkNotes" rows="2" maxlength="1000" placeholder="Ex. tom bur, bete bytt…"></textarea></label>
+        <div class="form-actions"><button type="button" data-close-sheet>Avbryt</button><button type="submit" class="primary">Spara vittjning</button></div>
+      </form>
+    </section>
+
+    <section id="tripSheet" class="sheet compact hidden" aria-label="Tur">
+      <div class="sheet-handle"></div>
+      <header><div><small>TUR</small><h2 id="tripSheetTitle">Pågående tur</h2></div><button data-close-sheet class="icon-btn">×</button></header>
+      <div class="trip-stats"><div><span>Start</span><strong id="tripStarted">—</strong></div><div><span>Distans</span><strong id="tripDistance">0.0 NM</strong></div><div><span>Punkter</span><strong id="tripPoints">0</strong></div></div>
+      <button id="finishTripBtn" class="danger wide">Avsluta och spara tur</button>
+    </section>
+
+    <div id="toast" class="toast hidden" role="status"></div>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
