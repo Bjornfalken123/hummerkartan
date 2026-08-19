@@ -1,8 +1,8 @@
-import { getDb, json, dbError, actorFromRequest, readJson, finite, text, isoNow, normalizeTrapStatus } from "../../_lib/common.js";
+import { getDb, json, dbError, actorFromContext, readJson, finite, text, isoNow, normalizeTrapStatus } from "../../_lib/common.js";
 
 export async function onRequestPatch(context) {
   try {
-    const db=getDb(context), id=context.params.id, body=await readJson(context.request), actor=actorFromRequest(context.request), now=isoNow();
+    const db=getDb(context), id=context.params.id, body=await readJson(context.request), actor=actorFromContext(context), now=isoNow();
     const current=await db.prepare("SELECT * FROM traps WHERE id=?").bind(id).first();
     if(!current) return json({ok:false,error:"Buren hittades inte"},404);
     const name=body.name===undefined?current.name:(text(body.name,"Bur").slice(0,80)||"Bur");
@@ -19,7 +19,7 @@ export async function onRequestPatch(context) {
 
 export async function onRequestDelete(context) {
   try {
-    const db=getDb(context), id=context.params.id, actor=actorFromRequest(context.request), now=isoNow();
+    const db=getDb(context), id=context.params.id, actor=actorFromContext(context), now=isoNow();
     await db.prepare("UPDATE traps SET status='retrieved', updated_at=?, updated_by=? WHERE id=?").bind(now,actor,id).run();
     return json({ok:true,id,status:"retrieved"});
   } catch(error){return dbError(error);}

@@ -77,7 +77,7 @@
 
       <footer class="desktop-footer">
         <span id="desktopUser">familj</span>
-        <button id="desktopExportBtn" class="text-btn">Backup</button>
+        <div class="desktop-footer-actions"><button id="desktopExportBtn" class="text-btn">Backup</button><button id="desktopLogoutBtn" class="text-btn">Logga ut</button></div>
       </footer>
     </aside>
 
@@ -104,6 +104,7 @@
       <button id="addTrapBtn" class="primary"><span>＋</span>Sätt bur</button>
       <button id="tripBtn"><span>▶</span><b id="tripBtnText">Starta tur</b></button>
       <button id="roundBtn"><span>↝</span>Runda</button>
+      <button id="mobilePlanBtn"><span>◇</span>Planera</button>
       <button id="trapsBtn"><span>●</span>Burarna</button>
     </nav>
 
@@ -112,6 +113,13 @@
       <div class="selected-head"><div><small>VALD BUR</small><h2 id="selectedName">—</h2></div><div id="selectedDistance" class="distance-badge">—</div></div>
       <div class="selected-meta"><span id="selectedLast">Inte vittjad</span><span id="selectedCatch">Ingen fångst loggad</span></div>
       <div class="selected-actions"><button id="checkTrapBtn" class="primary">Vittja</button><button id="navigateTrapBtn">Navigera</button><button id="editTrapBtn">Ändra</button></div>
+    </aside>
+
+    <aside id="selectedSpotCard" class="selected-card glass hidden" aria-live="polite">
+      <button id="closeSelectedSpotBtn" class="card-close" type="button" aria-label="Stäng">×</button>
+      <div class="selected-head"><div><small>PLANERAD PLATS</small><h2 id="selectedSpotName">—</h2></div><div id="selectedSpotDistance" class="distance-badge">—</div></div>
+      <div class="selected-meta"><span id="selectedSpotPosition">—</span><span id="selectedSpotNote">Ej satt bur ännu</span></div>
+      <div class="selected-actions spot-actions"><button id="navigateSpotBtn" class="primary">Navigera</button><button id="setTrapFromSpotBtn">Sätt bur här</button><button id="editSpotBtn">Ändra</button><button id="skipSpotBtn" class="hidden">Hoppa över</button></div>
     </aside>
 
     <div id="navBanner" class="nav-banner glass hidden">
@@ -127,7 +135,33 @@
       <header><div><small>FAMILJENS BURAR</small><h2>Burarna</h2></div><button data-close-sheet class="icon-btn">×</button></header>
       <div class="sheet-toolbar"><button id="showActiveBtn" class="chip active">Aktiva</button><button id="showAllBtn" class="chip">Alla</button><button id="syncBtn" class="chip">Synka</button></div>
       <div id="trapList" class="list"></div>
-      <footer class="sheet-footer"><button id="exportBtn">Exportera backup</button></footer>
+      <footer class="sheet-footer sheet-footer-split"><button id="exportBtn">Exportera backup</button><button id="mobileLogoutBtn">Logga ut</button></footer>
+    </section>
+
+    <section id="mobilePlanSheet" class="sheet hidden" aria-label="Planera rundan">
+      <div class="sheet-handle"></div>
+      <header><div><small>DAGENS ARBETE</small><h2>Planera rundan</h2></div><button data-close-sheet class="icon-btn">×</button></header>
+      <label class="field-label mobile-plan-date">Datum<input id="mobilePlanDate" type="date" /></label>
+      <div class="mobile-plan-summary"><div><span>Stopp</span><strong id="mobilePlanStopCount">0</strong></div><div><span>Sträcka</span><strong id="mobilePlanDistance">0.0 NM</strong></div><div><span>Burar</span><strong id="mobilePlanTrapCount">0</strong></div></div>
+      <div class="mobile-plan-actions"><button id="mobileAddSpotBtn">＋ Plats på kartan</button><button id="mobileGpsSpotBtn">◎ Min position</button><button id="mobileSavePlanBtn" class="primary">Spara</button></div>
+      <p class="pane-hint">Lägg till stopp och ändra ordningen. Planen är samma på mobilen och datorn. Raka planlinjer är bara referenslinjer och ersätter inte säker navigering eller aktuellt sjökort.</p>
+      <div id="mobilePlanItems" class="plan-items mobile-plan-items"></div>
+      <div class="section-title"><span>Aktiva burar</span><button id="mobileAddAllPlanBtn" class="text-btn">Lägg till alla</button></div>
+      <div id="mobilePlanTrapPicker" class="list mobile-plan-picker"></div>
+    </section>
+
+    <section id="planSpotSheet" class="sheet compact hidden" aria-label="Planerad plats">
+      <div class="sheet-handle"></div>
+      <header><div><small>PLANERAD PLATS</small><h2 id="planSpotTitle">Ändra plats</h2></div><button data-close-sheet class="icon-btn">×</button></header>
+      <form id="planSpotForm" class="form">
+        <input id="planSpotId" type="hidden" />
+        <label>Namn<input id="planSpotName" maxlength="100" required /></label>
+        <div class="two-col"><label>Latitud<input id="planSpotLat" inputmode="decimal" required /></label><label>Longitud<input id="planSpotLon" inputmode="decimal" required /></label></div>
+        <label>Anteckning<textarea id="planSpotNotes" rows="2" maxlength="500" placeholder="Ex. bra botten, testa nästa tur…"></textarea></label>
+        <div class="spot-edit-actions"><button id="moveSpotMapBtn" type="button">Flytta på kartan</button><button id="spotUseGpsBtn" type="button">Använd GPS</button></div>
+        <button id="deleteSpotBtn" type="button" class="danger wide">Ta bort planerad plats</button>
+        <div class="form-actions"><button type="button" data-close-sheet>Avbryt</button><button type="submit" class="primary">Spara ändring</button></div>
+      </form>
     </section>
 
     <section id="trapFormSheet" class="sheet compact hidden" aria-label="Bur">

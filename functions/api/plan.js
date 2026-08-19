@@ -1,4 +1,4 @@
-import { getDb, json, dbError, actorFromRequest, readJson, text, finite, isoNow } from "../_lib/common.js";
+import { getDb, json, dbError, actorFromContext, readJson, text, finite, isoNow } from "../_lib/common.js";
 
 function validDate(value){return /^\d{4}-\d{2}-\d{2}$/.test(String(value||""));}
 
@@ -22,7 +22,7 @@ export async function onRequestGet(context){
 
 export async function onRequestPut(context){
   try{
-    const db=getDb(context),body=await readJson(context.request),actor=actorFromRequest(context.request),date=text(body.date);
+    const db=getDb(context),body=await readJson(context.request),actor=actorFromContext(context),date=text(body.date);
     if(!validDate(date)) return json({ok:false,error:"Ogiltigt datum"},400);
     const now=isoNow(),existing=await db.prepare("SELECT * FROM day_plans WHERE plan_date=?").bind(date).first();
     const planId=existing?.id||crypto.randomUUID(),name=text(body.name,`Hummerrunda ${date}`).slice(0,120);

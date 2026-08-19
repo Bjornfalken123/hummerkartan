@@ -1,4 +1,4 @@
-import { getDb, json, dbError, actorFromRequest, readJson, finite, text, uuid, isoNow, normalizeTrapStatus } from "../_lib/common.js";
+import { getDb, json, dbError, actorFromContext, readJson, finite, text, uuid, isoNow, normalizeTrapStatus } from "../_lib/common.js";
 
 export async function onRequestGet(context) {
   try {
@@ -10,7 +10,7 @@ export async function onRequestGet(context) {
 
 export async function onRequestPost(context) {
   try {
-    const db = getDb(context), body = await readJson(context.request), actor = actorFromRequest(context.request);
+    const db = getDb(context), body = await readJson(context.request), actor = actorFromContext(context);
     const id = uuid(body.id), lat = finite(body.lat), lon = finite(body.lon);
     if (lat == null || lon == null || Math.abs(lat) > 90 || Math.abs(lon) > 180) return json({ ok:false, error:"Ogiltig position" }, 400);
     const now = isoNow();

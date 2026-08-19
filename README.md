@@ -1,21 +1,22 @@
 # Hummerkartan
 
-Familjens gemensamma sjökort, hummerrunda och fångstjournal för svenska västkusten.
+Familjens gemensamma sjökort, planering, hummerrunda och fångstjournal för svenska västkusten.
 
-## Version 2
+## Version 2.1
 
-Samma data och samma sjökort används på telefon och dator, men gränssnittet anpassas efter arbetsuppgiften.
+Samma D1-data och samma dagsplan används på telefon och dator, men gränssnittet är anpassat efter arbetsuppgiften.
 
-### Telefon – fiskläge
+### Telefon – fiske och planering
 
-- Sjökort som huvudyta.
-- Fart i knop, kurs, GPS-noggrannhet och körd distans.
-- GPS-spår under aktiv tur.
-- Fyra stora huvudknappar: **Sätt bur**, **Starta tur**, **Runda**, **Burarna**.
-- Dagens planerade burordning från desktop används automatiskt av `Runda`.
-- Navigering till vald bur med avstånd och bäring.
+- Sjökort som huvudyta med GPS, fart, kurs och aktiv tur.
+- **Planera** direkt i mobilen: lägg en plats på kartan eller från aktuell GPS-position.
+- Lägg till befintliga aktiva burar i dagens plan.
+- Ändra ordningen, flytta, döp om och ta bort planerade platser.
+- Planen autosparas och är samma plan som visas på desktop.
+- **Runda** följer både befintliga burar och planerade platser i planens ordning.
+- En planerad plats kan öppnas, hoppas över, flyttas eller ersättas av en riktig bur.
+- När en planerad plats blir en bur ersätts planpunkten i stället för att skapa ett dubbelt stopp.
 - Snabb vittjning och fångstregistrering.
-- Diskret valbart fångstlager/heatmap.
 - Lokal cache och offlinekö vid dålig täckning.
 
 ### Desktop – planeringsläge
@@ -25,17 +26,26 @@ Samma data och samma sjökort används på telefon och dator, men gränssnittet 
 - Bygg dagens runda och ändra ordningen.
 - Visa ungefärlig rak linjesträcka i nautiska mil.
 - Lägg ut planerade platser direkt på kartan.
+- Klicka på planerade platser för att öppna samma åtgärder som på mobilen.
 - Burregister med sökning och filter.
 - Visa historiska GPS-spår från tidigare turer.
 - Fångstheatmap och ranking av områden.
 
-### Heatmap
+### Privat inloggning
 
-Heatmapen bygger på fångst per vittjning i små geografiska områden, inte på total fångst. Ett område med få observationer tonas ned för att ett enda lyckat vittjningstillfälle inte ska dominera kartan. Områden utan historik färgas inte.
+Appen skyddas av `functions/_middleware.js` innan både statiska filer och API-routes levereras.
+
+Inloggningsuppgifterna ligger **inte** i GitHub. De anges som Cloudflare Pages Variables/Secrets:
+
+- `AUTH_USERNAME`
+- `AUTH_PASSWORD`
+- `AUTH_SECRET`
+
+`AUTH_PASSWORD` och `AUTH_SECRET` ska vara krypterade Secrets. Sessionen lagras i en HttpOnly-cookie. **Logga ut** rensar även Hummerkartans lokala cache/data på enheten.
 
 ## Gemensam familjedata
 
-Cloudflare D1 lagrar burar, vittjningar, turer, GPS-spår och dagens planer. Cloudflare Access rekommenderas framför appen så att bara familjen kan nå den.
+Cloudflare D1 lagrar burar, vittjningar, turer, GPS-spår och dagsplaner.
 
 ## Deployment
 
@@ -48,8 +58,8 @@ Kör migrationerna i ordning:
 1. `migrations/0001_init.sql`
 2. `migrations/0002_day_plans.sql`
 
-Pages-bindingen måste heta `DB`.
+Pages-bindningen måste heta `DB`.
 
 ## Viktigt
 
-Hummerkartan är ett personligt planerings- och loggverktyg. Kartdata och de raka planeringslinjerna ersätter inte officiell navigation eller bedömning av farbar väg.
+Hummerkartan är ett personligt planerings- och loggverktyg. Kartdata, GPS-värden och raka planeringslinjer ersätter inte officiellt sjökort, säker navigation eller egen bedömning av farbar väg och förhållanden.

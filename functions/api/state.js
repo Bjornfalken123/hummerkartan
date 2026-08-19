@@ -1,4 +1,4 @@
-import { getDb, json, dbError, actorFromRequest } from "../_lib/common.js";
+import { getDb, json, dbError, actorFromContext } from "../_lib/common.js";
 
 export async function onRequestGet(context) {
   try {
@@ -20,7 +20,7 @@ export async function onRequestGet(context) {
     `).all();
     return json({
       ok: true,
-      user: actorFromRequest(context.request),
+      user: actorFromContext(context),
       traps: traps.results || [],
       checks: recentChecks.results || [],
       trips: recentTrips.results || [],

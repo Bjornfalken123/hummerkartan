@@ -15,10 +15,11 @@ export function getDb(context) {
   return db;
 }
 
-export function actorFromRequest(request) {
+export function actorFromContext(context) {
   return (
-    request.headers.get("cf-access-authenticated-user-email") ||
-    request.headers.get("x-hummer-user") ||
+    context?.env?.AUTH_USERNAME ||
+    context?.request?.headers?.get("cf-access-authenticated-user-email") ||
+    context?.request?.headers?.get("x-hummer-user") ||
     "familj"
   ).slice(0, 180);
 }

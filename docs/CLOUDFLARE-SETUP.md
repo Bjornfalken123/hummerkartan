@@ -1,67 +1,83 @@
-# Cloudflare-setup för Hummerkartan
+# Cloudflare-setup för Hummerkartan 2.1
 
-## Rekommenderad arkitektur
+## Arkitektur
 
-- Ett **nytt Cloudflare Pages-projekt** kopplat till det nya GitHub-repot.
-- En **ny D1-databas** för familjens burar, vittjningar och turer.
-- Pages **Functions** i `/functions` är appens API. Du behöver inte skapa separata Workers för dem.
-- Cloudflare **Access** framför appen, med familjens e-postadresser som tillåtna användare.
-- MapTiler-nyckeln används i klienten. Begränsa nyckeln till den nya domänen i MapTiler.
+- Cloudflare **Pages** kopplat till GitHub.
+- Pages **Functions** i `/functions` för API och inloggning.
+- Cloudflare **D1** för burar, vittjningar, turer, GPS-spår och dagsplaner.
+- Appens egen server-side inloggning via Pages middleware och signerad HttpOnly-cookie.
+- MapTiler används i klienten för kartan.
 
 ## 1. GitHub
 
-1. Skapa ett nytt repo, t.ex. `hummerkartan`.
-2. Packa upp projektet och lägg filerna i repo-roten.
-3. Push till `main`.
+Projektfilerna ska ligga direkt i repots rot. `index.html`, `app.js`, `functions/` och `migrations/` ska alltså synas direkt när repot öppnas.
+
+Push ändringarna till produktionsbranchen, normalt `main`.
 
 ## 2. Cloudflare Pages
 
-1. Workers & Pages → Create application → Pages → Connect to Git.
-2. Välj det nya GitHub-repot.
-3. Framework preset: None.
-4. Build command: lämna tomt.
-5. Build output directory: `/` eller repo-roten beroende på dashboardens val.
-6. Deploy.
+Projektet behöver ingen kompilerad frontend-build.
 
-`/functions` läses automatiskt av Pages och blir server-side API-routes.
+Rekommenderade inställningar:
+
+- Framework preset: **None**
+- Build command: `exit 0`
+- Build output directory: `.`
+- Root directory: lämna tom om projektet ligger i repo-roten
+
+`/functions` används automatiskt av Pages Functions.
 
 ## 3. D1
 
-Skapa en ny D1-databas, t.ex. `hummerkartan-db`.
-
-Kör migrationerna i ordning mot databasen:
+Skapa databasen, t.ex. `hummerkartan-db`, och kör:
 
 1. `migrations/0001_init.sql`
 2. `migrations/0002_day_plans.sql`
 
-Det går via D1-konsolen i dashboarden eller Wrangler.
-
-Bind databasen till Pages-projektet:
+Bind sedan databasen till Pages-projektet:
 
 - Pages project → Settings → Bindings → Add → D1 database
 - Variable name: **DB**
 - Database: `hummerkartan-db`
-- Spara och gör en ny deployment.
 
-Testa därefter `/api/health`. Svaret ska innehålla `"db": true`.
+Gör en ny deployment efter att bindningen lagts till.
 
-## 4. Familjeinloggning med Cloudflare Access
+## 4. Inloggning
 
-Rekommenderat för privat familjebruk:
+Gå till Pages-projektet → **Settings → Variables and Secrets → Add**.
 
-1. Lägg en egen subdomän på Pages-projektet, t.ex. `hummer.dindoman.se`.
-2. Zero Trust → Access controls → Applications → Create application → Self-hosted and private.
-3. Lägg till appens publika hostname.
-4. Skapa en Allow-policy med exakt de e-postadresser som familjen ska använda.
-5. Aktivera One-time PIN eller en befintlig identitetsleverantör.
-6. Skydda även `*.pages.dev`-adressen/preview-deployments eller stäng/redirecta den, så databasen inte får en oskyddad alternativ ingång.
+Lägg till:
 
-När Access är aktivt skickar Cloudflare användarens verifierade e-post till appen. Hummerkartan sparar den som `updated_by`/`actor` så familjen kan se vem som ändrat data.
+- `AUTH_USERNAME` – användarnamnet. Kan vara vanlig variable.
+- `AUTH_PASSWORD` – lösenordet. Välj **Encrypt**.
+- `AUTH_SECRET` – en separat lång slumpmässig hemlighet för signering av sessionscookies. Välj **Encrypt**.
 
-## 5. MapTiler
+Använd minst cirka 32 slumpmässiga tecken för `AUTH_SECRET`. Det värdet ska inte vara samma som lösenordet och ska aldrig läggas i GitHub.
 
-Projektet innehåller samma publika MapTiler-klientnyckel som Weatherbear för att kartan ska fungera direkt. För det nya repot rekommenderas att du i MapTiler begränsar nyckeln till Hummerkartans nya domän, eller skapar en separat publik nyckel för appen.
+Gör en ny deployment efter att variablerna/secrets har sparats.
 
-## 6. Ingen extra Worker behövs
+Om någon av de tre variablerna saknas visas en konfigurationsvarning på `/login` och resten av appen blockeras.
 
-För version 2 behövs ingen separat Worker. Pages Functions körs på Workers-runtime automatiskt. Separat Worker blir först relevant om vi senare vill ha t.ex. särskild realtidstjänst, köer eller en separat integrationsservice.
+## 5. Test
+
+Efter deployment:
+
+1. Öppna appens `pages.dev`-adress.
+2. Du ska skickas till `/login`.
+3. Logga in med de värden du satt i Cloudflare.
+4. Kontrollera att appen öppnas.
+5. Testa `/api/health` när du är inloggad. Svaret ska innehålla `"db": true`.
+6. Skapa en testplan på desktop och kontrollera att samma plan visas via **Planera** på mobilen.
+7. Logga ut och kontrollera att appen åter visar inloggningssidan.
+
+## 6. Preview deployments
+
+Om du använder Cloudflare Pages preview deployments behöver samma D1-binding och auth-variabler finnas även i Preview-miljön om preview-adresserna ska fungera.
+
+## 7. MapTiler
+
+MapTiler-nyckeln är en publik klientnyckel. Begränsa den till Hummerkartans domän i MapTiler när den slutliga domänen är bestämd.
+
+## 8. Ingen separat Worker behövs
+
+Pages Functions körs på Workers-runtime. En separat Worker behövs inte för den här versionen.

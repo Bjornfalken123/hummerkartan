@@ -1,8 +1,8 @@
-import { getDb, json, dbError, actorFromRequest, readJson, finite, text, uuid, isoNow } from "../_lib/common.js";
+import { getDb, json, dbError, actorFromContext, readJson, finite, text, uuid, isoNow } from "../_lib/common.js";
 
 export async function onRequestPost(context) {
   try {
-    const db=getDb(context), body=await readJson(context.request), actor=actorFromRequest(context.request);
+    const db=getDb(context), body=await readJson(context.request), actor=actorFromContext(context);
     const trapId=text(body.trap_id), trap=await db.prepare("SELECT * FROM traps WHERE id=?").bind(trapId).first();
     if(!trap) return json({ok:false,error:"Buren hittades inte"},404);
     const checkedAt=text(body.checked_at,isoNow())||isoNow(), id=uuid(body.id);
