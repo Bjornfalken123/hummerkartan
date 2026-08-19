@@ -53,3 +53,11 @@ body.night{--glass:rgba(6,12,14,.90);--glass2:rgba(7,15,17,.98);--text:#e4c59d;-
 @media(max-width:899px){.primary-actions{grid-template-columns:1.08fr .98fr .82fr .9fr .82fr}.primary-actions button{font-size:8px}.selected-card .spot-actions{grid-template-columns:1fr 1fr}.mobile-plan-picker .desktop-row{grid-template-columns:38px 1fr auto}.sheet#mobilePlanSheet{max-height:min(86vh,820px)}}
 @media(max-width:390px){.primary-actions{left:6px;right:6px;padding:5px;gap:3px}.primary-actions button{font-size:7.5px}.primary-actions button span{font-size:14px}.mobile-plan-actions{grid-template-columns:1fr 1fr}.mobile-plan-actions #mobileSavePlanBtn{grid-column:1/-1}.selected-card .spot-actions{grid-template-columns:1fr 1fr}}
 .plan-main{min-width:0;background:transparent;text-align:left;padding:0;color:inherit}.plan-main strong,.plan-main small{pointer-events:none}.plan-main:active{opacity:.8}
+
+
+/* Auth bootstrap v2.1.1 */
+.auth-boot{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:#0c1c22;color:#f3f7f5;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.auth-boot>div{display:grid;gap:.45rem;text-align:center;padding:1.25rem}
+.auth-boot strong{font-size:1.35rem}.auth-boot span{opacity:.78;font-size:.95rem}
+.auth-boot.hidden{display:none}
+.auth-boot.error span{max-width:30rem;line-height:1.45}

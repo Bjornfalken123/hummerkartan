@@ -23,7 +23,7 @@
   <script>
     const p=new URLSearchParams(location.search),m=document.getElementById('message');
     if(p.has('error')){m.textContent='Fel användarnamn eller lösenord.';m.classList.add('show')}
-    if(p.has('setup')){m.textContent='Inloggningen är inte färdigkonfigurerad i Cloudflare. Lägg till AUTH_USERNAME, AUTH_PASSWORD och AUTH_SECRET och deploya igen.';m.classList.add('show')}
+    if(p.has('setup')){m.textContent='Inloggningen är inte färdigkonfigurerad i Cloudflare. Lägg till AUTH_USERNAME, AUTH_PASSWORD och AUTH_SECRET och deploya igen.';m.classList.add('show')}else if(p.has('offline')){m.textContent='Anslut till internet för att logga in första gången på den här enheten.';m.classList.add('show')}
   </script>
 </body>
 </html>

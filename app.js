@@ -6,6 +6,7 @@ const PENDING_KEY='hummerkartan:pending:v2';
 const TRIP_KEY='hummerkartan:activeTrip:v2';
 const PLAN_CACHE_PREFIX='hummerkartan:plan:v2:';
 const HEAT_CACHE_KEY='hummerkartan:heat:v2';
+const AUTH_DEVICE_KEY='hummerkartan:auth-device:v1';
 const WEST_COAST_CENTER=[11.45,58.15];
 const START_ZOOM=8.2;
 const NAV_ZOOM=14.2;
@@ -201,7 +202,7 @@ async function finishTrip(){if(!activeTrip)return;await flushTrackBatch();await 
 function openTripSheet(){if(!activeTrip){startTrip();return}openSheet('tripSheet');updateTripUi()}
 function updateTripUi(){$('distanceValue').textContent=tripDistanceNm.toFixed(1);$('tripDistance').textContent=`${tripDistanceNm.toFixed(2)} NM`;$('tripPoints').textContent=String(tripPoints.length);$('tripStarted').textContent=activeTrip?fmtClock(activeTrip.started_at):'—'}
 
-function clearPrivateLocalData(){const keys=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key)keys.push(key)}for(const key of keys)if(key===CACHE_KEY||key===PENDING_KEY||key===TRIP_KEY||key===HEAT_CACHE_KEY||key.startsWith(PLAN_CACHE_PREFIX))localStorage.removeItem(key)}
+function clearPrivateLocalData(){const keys=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key)keys.push(key)}for(const key of keys)if(key===CACHE_KEY||key===PENDING_KEY||key===TRIP_KEY||key===HEAT_CACHE_KEY||key===AUTH_DEVICE_KEY||key.startsWith(PLAN_CACHE_PREFIX))localStorage.removeItem(key)}
 async function logout(){try{await fetch('/api/auth/logout',{method:'POST',headers:{'accept':'application/json'}})}catch{}clearPrivateLocalData();try{const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('hummerkartan-')).map(k=>caches.delete(k)))}catch{}try{const regs=await navigator.serviceWorker?.getRegistrations?.();if(regs)await Promise.all(regs.map(r=>r.unregister()))}catch{}location.replace('/login')}
 
 function switchDesktopTab(name){document.querySelectorAll('.desktop-tab').forEach(b=>b.classList.toggle('active',b.dataset.desktopTab===name));document.querySelectorAll('.desktop-pane').forEach(p=>p.classList.toggle('active',p.dataset.desktopPane===name));if(name==='catch'&&!heatData.points?.length)loadHeatmap({quiet:true})}
@@ -226,4 +227,4 @@ function initMap(){
 }
 
 bindUi();setTheme(theme);$('planDate').value=localDateKey();$('mobilePlanDate').value=localDateKey();initMap();
-syncTimer=setInterval(()=>syncState({quiet:true}),15000);setInterval(()=>{if(activeTrip)flushTrackBatch()},10000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+syncTimer=setInterval(()=>syncState({quiet:true}),15000);setInterval(()=>{if(activeTrip)flushTrackBatch()},10000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=2.1.1').catch(()=>{});
