@@ -110,7 +110,7 @@ function renderTrapMarkers(){
 }
 function renderPlannedMarkers(){
   if(!map)return;const ids=new Set(state.planned.map(p=>p.id));for(const [id,marker] of plannedMarkers){if(!ids.has(id)){marker.remove();plannedMarkers.delete(id)}}
-  for(const planned of state.planned){const lat=+planned.lat,lon=+planned.lon;if(!Number.isFinite(lat)||!Number.isFinite(lon))continue;let marker=plannedMarkers.get(planned.id);if(!marker){const el=document.createElement('button');el.type='button';el.className='planned-marker';el.addEventListener('click',ev=>{ev.stopPropagation();selectPlanned(planned.id);if(isDesktop())openPlannedDetail()});marker=new maptilersdk.Marker({element:el,anchor:'center',subpixelPositioning:true}).setLngLat([lon,lat]).addTo(map);plannedMarkers.set(planned.id,marker)}else marker.setLngLat([lon,lat]);const el=marker.getElement();el.className=`planned-marker${planned.id===selectedPlannedId?' selected':''}`;el.textContent=shortLabel(planned.name,'P');el.title=planned.name||'Planerad tina'}
+  for(const planned of state.planned){const lat=+planned.lat,lon=+planned.lon;if(!Number.isFinite(lat)||!Number.isFinite(lon))continue;let marker=plannedMarkers.get(planned.id);if(!marker){const el=document.createElement('button');el.type='button';el.className='planned-marker';el.innerHTML='<span class="planned-marker-core"><span class="planned-marker-label"></span></span>';el.addEventListener('click',ev=>{ev.stopPropagation();selectPlanned(planned.id);if(isDesktop())openPlannedDetail()});marker=new maptilersdk.Marker({element:el,anchor:'bottom',subpixelPositioning:true}).setLngLat([lon,lat]).addTo(map);plannedMarkers.set(planned.id,marker)}else marker.setLngLat([lon,lat]);const el=marker.getElement();el.className=`planned-marker${planned.id===selectedPlannedId?' selected':''}`;el.querySelector('.planned-marker-label').textContent=shortLabel(planned.name,'P');el.title=planned.name||'Planerad tina'}
 }
 
 function selectTrap(id,{center=false}={}){selectedPlannedId=null;selectedTrapId=id;renderSelections();renderTrapMarkers();renderPlannedMarkers();renderDesktopTraps();const t=state.traps.find(x=>x.id===id);if(center&&t)map?.easeTo({center:[+t.lon,+t.lat],zoom:Math.max(map.getZoom(),13.8),duration:450})}
@@ -239,4 +239,4 @@ function initMap(){
 }
 
 bindUi();setTheme(theme);applyMobileMode();initMap();
-syncTimer=setInterval(()=>syncState({quiet:true}),15000);setInterval(()=>{if(activeTrip)flushTrackBatch()},10000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=3.2.1').catch(()=>{});
+syncTimer=setInterval(()=>syncState({quiet:true}),15000);setInterval(()=>{if(activeTrip)flushTrackBatch()},10000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=3.2.2').catch(()=>{});

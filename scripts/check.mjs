@@ -24,11 +24,11 @@ for(const forbidden of ['roundBtn','mobileStartRoundBtn','planDate','mobilePlanD
 if(!migration.includes('CREATE TABLE IF NOT EXISTS planned_traps')) throw new Error('planned_traps migration missing');
 if(!stateApi.includes('planned_traps')) throw new Error('state API must return planned traps');
 if(!sw.includes("networkFirst(req, SHELL_CACHE)")) throw new Error('App shell must be network-first');
-if(!sw.includes('hummerkartan-shell-v10')) throw new Error('Service worker cache not bumped');
-if(!html.includes('boot.js?v=3.2.1')||!html.includes('styles.css?v=3.2.1')||!app.includes("sw.js?v=3.2.1")) throw new Error('Asset version not bumped to 3.0.0');
-if(!fs.readFileSync(path.join(root,'boot.js'),'utf8').includes("app.js?v=3.2.1")) throw new Error('Boot app version not bumped');
+if(!sw.includes('hummerkartan-shell-v11')) throw new Error('Service worker cache not bumped');
+if(!html.includes('boot.js?v=3.2.2')||!html.includes('styles.css?v=3.2.2')||!app.includes("sw.js?v=3.2.2")) throw new Error('Asset version not bumped to 3.0.0');
+if(!fs.readFileSync(path.join(root,'boot.js'),'utf8').includes("app.js?v=3.2.2")) throw new Error('Boot app version not bumped');
 const ids=[...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]);
 const seen=new Set();for(const id of ids){if(seen.has(id))throw new Error(`Duplicate DOM id: ${id}`);seen.add(id)}
 const refs=[...app.matchAll(/\$\('([^']+)'\)/g)].map(m=>m[1]);
 for(const id of new Set(refs)){if(!seen.has(id))throw new Error(`app.js references missing DOM id: ${id}`)}
-console.log('Hummerkartan v3.2.1: karta-i-fokus, Planering/Fiske, planned_traps, rapporter, auth och PWA-kontroller OK');
+console.log('Hummerkartan v3.2.2: karta-i-fokus, Planering/Fiske, planned_traps, rapporter, auth och PWA-kontroller OK');

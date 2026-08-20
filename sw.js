@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'hummerkartan-shell-v10';
+const SHELL_CACHE = 'hummerkartan-shell-v11';
 const MAP_CACHE = 'hummerkartan-map-v1';
 const DEPTH_CACHE = 'hummerkartan-depth-v1';
 const OFFLINE_PAGE = '/__hummerkartan_offline_app__';
