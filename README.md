@@ -1,8 +1,10 @@
 # Hummerkartan
 
+Aktuell release: **Hummerkartan 2.2**.
+
 Familjens gemensamma sjökort, planering, hummerrunda och fångstjournal för svenska västkusten.
 
-## Version 2.1
+## Version 2.2
 
 Samma D1-data och samma dagsplan används på telefon och dator, men gränssnittet är anpassat efter arbetsuppgiften.
 

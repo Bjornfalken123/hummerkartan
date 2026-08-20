@@ -8,7 +8,7 @@ export async function onRequestPost(context) {
     const checkedAt=text(body.checked_at,isoNow())||isoNow(), id=uuid(body.id);
     const lobsterCount=Math.max(0,Math.round(finite(body.lobster_count,0))), releasedCount=Math.max(0,Math.round(finite(body.released_count,0)));
     const lat=finite(body.lat), lon=finite(body.lon), notes=text(body.notes).slice(0,1000);
-    await db.prepare(`INSERT INTO checks (id,trap_id,checked_at,lobster_count,released_count,notes,lat,lon,actor,created_at)
+    await db.prepare(`INSERT OR IGNORE INTO checks (id,trap_id,checked_at,lobster_count,released_count,notes,lat,lon,actor,created_at)
       VALUES (?,?,?,?,?,?,?,?,?,?)`).bind(id,trapId,checkedAt,lobsterCount,releasedCount,notes,lat,lon,actor,isoNow()).run();
     await db.prepare("UPDATE traps SET last_checked_at=?, updated_at=?, updated_by=? WHERE id=?").bind(checkedAt,isoNow(),actor,trapId).run();
     return json({ok:true,check:{id,trap_id:trapId,checked_at:checkedAt,lobster_count:lobsterCount,released_count:releasedCount,notes,lat,lon,actor}},201);

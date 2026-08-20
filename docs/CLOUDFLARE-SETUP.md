@@ -1,4 +1,4 @@
-# Cloudflare-setup för Hummerkartan 2.1
+# Cloudflare-setup för Hummerkartan 2.2
 
 ## Arkitektur
 

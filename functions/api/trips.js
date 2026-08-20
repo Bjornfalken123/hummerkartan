@@ -9,8 +9,9 @@ export async function onRequestPost(context){
   try{
     const db=getDb(context),body=await readJson(context.request),actor=actorFromContext(context),id=uuid(body.id),started=text(body.started_at,isoNow())||isoNow();
     const name=text(body.name,"Hummertur").slice(0,100)||"Hummertur";
-    await db.prepare("INSERT INTO trips (id,name,started_at,ended_at,distance_nm,actor,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)")
+    await db.prepare("INSERT OR IGNORE INTO trips (id,name,started_at,ended_at,distance_nm,actor,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)")
       .bind(id,name,started,null,0,actor,isoNow(),isoNow()).run();
-    return json({ok:true,trip:{id,name,started_at:started,ended_at:null,distance_nm:0,actor}},201);
+    const trip=await db.prepare("SELECT * FROM trips WHERE id=?").bind(id).first();
+    return json({ok:true,trip},201);
   }catch(error){return dbError(error);}
 }

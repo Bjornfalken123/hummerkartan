@@ -25,6 +25,11 @@ export async function onRequestPut(context){
     const db=getDb(context),body=await readJson(context.request),actor=actorFromContext(context),date=text(body.date);
     if(!validDate(date)) return json({ok:false,error:"Ogiltigt datum"},400);
     const now=isoNow(),existing=await db.prepare("SELECT * FROM day_plans WHERE plan_date=?").bind(date).first();
+    const baseUpdatedAt=text(body.base_updated_at),baseKnown=body.base_known===true,force=body.force===true;
+    if(existing&&!force&&((baseUpdatedAt&&existing.updated_at!==baseUpdatedAt)||(baseKnown&&!baseUpdatedAt))){
+      const current=await readPlan(db,date);
+      return json({ok:false,error:"Planen har ändrats på en annan enhet.",conflict:true,...current},409);
+    }
     const planId=existing?.id||crypto.randomUUID(),name=text(body.name,`Hummerrunda ${date}`).slice(0,120);
     if(existing){
       await db.prepare("UPDATE day_plans SET name=?,updated_at=?,updated_by=? WHERE id=?").bind(name,now,actor,planId).run();

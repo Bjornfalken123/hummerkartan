@@ -17,9 +17,10 @@ export async function onRequestPost(context) {
     const name = text(body.name, "Bur").slice(0, 80) || "Bur";
     const setAt = text(body.set_at, now) || now;
     await db.prepare(`
-      INSERT INTO traps (id,name,lat,lon,status,set_at,last_checked_at,notes,created_at,updated_at,updated_by)
+      INSERT OR IGNORE INTO traps (id,name,lat,lon,status,set_at,last_checked_at,notes,created_at,updated_at,updated_by)
       VALUES (?,?,?,?,?,?,?,?,?,?,?)
     `).bind(id,name,lat,lon,normalizeTrapStatus(body.status),setAt,null,text(body.notes).slice(0,1000),now,now,actor).run();
-    return json({ ok:true, trap:{ id,name,lat,lon,status:"active",set_at:setAt,last_checked_at:null,notes:text(body.notes),updated_at:now,updated_by:actor } }, 201);
+    const trap=await db.prepare("SELECT * FROM traps WHERE id=?").bind(id).first();
+    return json({ ok:true, trap }, 201);
   } catch (error) { return dbError(error); }
 }

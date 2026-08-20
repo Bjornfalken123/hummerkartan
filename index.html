@@ -9,7 +9,7 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" />
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./styles.css?v=2.2.0" />
   <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
 </head>
 <body>
@@ -113,7 +113,7 @@
       <button id="closeSelectedBtn" class="card-close" type="button" aria-label="Stäng">×</button>
       <div class="selected-head"><div><small>VALD BUR</small><h2 id="selectedName">—</h2></div><div id="selectedDistance" class="distance-badge">—</div></div>
       <div class="selected-meta"><span id="selectedLast">Inte vittjad</span><span id="selectedCatch">Ingen fångst loggad</span></div>
-      <div class="selected-actions"><button id="checkTrapBtn" class="primary">Vittja</button><button id="navigateTrapBtn">Navigera</button><button id="editTrapBtn">Ändra</button></div>
+      <div class="selected-actions trap-actions"><button id="checkTrapBtn" class="primary">Vittja</button><button id="navigateTrapBtn">Navigera</button><button id="editTrapBtn">Ändra</button><button id="skipTrapBtn" class="hidden">Hoppa över</button></div>
     </aside>
 
     <aside id="selectedSpotCard" class="selected-card glass hidden" aria-live="polite">
@@ -127,6 +127,11 @@
       <div><small>NAVIGERAR TILL</small><strong id="navTargetName">—</strong></div>
       <div><strong id="navDistance">—</strong><small id="navBearing">—</small></div>
       <button id="stopNavBtn" class="icon-btn" type="button">×</button>
+    </div>
+
+    <div id="placementBanner" class="placement-banner glass hidden" role="status">
+      <div><small id="placementEyebrow">PLANERA</small><strong id="placementText">Tryck på sjökortet</strong></div>
+      <button id="cancelPlacementBtn" type="button">Avbryt</button>
     </div>
 
     <div id="backdrop" class="backdrop hidden"></div>
@@ -144,8 +149,10 @@
       <header><div><small>DAGENS ARBETE</small><h2>Planera rundan</h2></div><button data-close-sheet class="icon-btn">×</button></header>
       <label class="field-label mobile-plan-date">Datum<input id="mobilePlanDate" type="date" /></label>
       <div class="mobile-plan-summary"><div><span>Stopp</span><strong id="mobilePlanStopCount">0</strong></div><div><span>Sträcka</span><strong id="mobilePlanDistance">0.0 NM</strong></div><div><span>Burar</span><strong id="mobilePlanTrapCount">0</strong></div></div>
-      <div class="mobile-plan-actions"><button id="mobileAddSpotBtn">＋ Plats på kartan</button><button id="mobileGpsSpotBtn">◎ Min position</button><button id="mobileSavePlanBtn" class="primary">Spara</button></div>
-      <p class="pane-hint">Lägg till stopp och ändra ordningen. Planen är samma på mobilen och datorn. Raka planlinjer är bara referenslinjer och ersätter inte säker navigering eller aktuellt sjökort.</p>
+      <div class="mobile-plan-actions"><button id="mobileAddSpotBtn">＋ Plats på kartan</button><button id="mobileGpsSpotBtn">◎ Min position</button><button id="mobileFitPlanBtn">⌖ Visa plan</button><button id="mobileRefreshPlanBtn">↻ Hämta om</button></div>
+      <div class="mobile-plan-commit"><button id="mobileStartRoundBtn" class="primary">↝ Starta rundan</button><button id="mobileSavePlanBtn">Sparad</button></div>
+      <p id="mobilePlanStatus" class="pane-hint">Lägg till stopp och ändra ordningen. Ändringar autosparas och samma dagsplan används på mobilen och datorn.</p>
+      <p class="pane-hint plan-safety">Planlinjerna är raka referenslinjer. Kontrollera alltid aktuellt sjökort, djup och verkliga förhållanden vid navigering.</p>
       <div id="mobilePlanItems" class="plan-items mobile-plan-items"></div>
       <div class="section-title"><span>Aktiva burar</span><button id="mobileAddAllPlanBtn" class="text-btn">Lägg till alla</button></div>
       <div id="mobilePlanTrapPicker" class="list mobile-plan-picker"></div>
@@ -198,6 +205,6 @@
 
     <div id="toast" class="toast hidden" role="status"></div>
   </main>
-  <script type="module" src="./boot.js?v=2.1.1"></script>
+  <script type="module" src="./boot.js?v=2.2.0"></script>
 </body>
 </html>

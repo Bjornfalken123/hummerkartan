@@ -9,26 +9,25 @@ export async function onRequestGet(context){
   try{
     const db=getDb(context);
     const rows=await db.prepare(`
-      SELECT t.id AS trap_id,t.name,t.lat,t.lon,
-             COUNT(c.id) AS check_count,
-             COALESCE(SUM(c.lobster_count),0) AS lobster_count,
-             COALESCE(AVG(c.lobster_count),0) AS avg_catch,
-             MAX(c.checked_at) AS last_checked_at
-      FROM traps t
-      JOIN checks c ON c.trap_id=t.id
-      GROUP BY t.id,t.name,t.lat,t.lon
+      SELECT c.id,c.trap_id,t.name,
+             COALESCE(c.lat,t.lat) AS lat,
+             COALESCE(c.lon,t.lon) AS lon,
+             c.lobster_count,c.checked_at
+      FROM checks c
+      JOIN traps t ON t.id=c.trap_id
+      ORDER BY c.checked_at
     `).all();
 
     const cells=new Map();
     for(const row of rows.results||[]){
-      const lat=Number(row.lat),lon=Number(row.lon),checks=Number(row.check_count)||0,lobsters=Number(row.lobster_count)||0;
-      if(!Number.isFinite(lat)||!Number.isFinite(lon)||checks<1) continue;
+      const lat=Number(row.lat),lon=Number(row.lon),lobsters=Math.max(0,Number(row.lobster_count)||0);
+      if(!Number.isFinite(lat)||!Number.isFinite(lon)) continue;
       const y=Math.floor(lat/LAT_CELL),x=Math.floor(lon/LON_CELL),key=`${y}:${x}`;
       let cell=cells.get(key);
-      if(!cell){cell={key,lat_sum:0,lon_sum:0,position_weight:0,check_count:0,lobster_count:0,last_checked_at:null,names:[]};cells.set(key,cell);}
-      cell.lat_sum+=lat*checks;cell.lon_sum+=lon*checks;cell.position_weight+=checks;cell.check_count+=checks;cell.lobster_count+=lobsters;
+      if(!cell){cell={key,lat_sum:0,lon_sum:0,check_count:0,lobster_count:0,last_checked_at:null,names:[]};cells.set(key,cell);}
+      cell.lat_sum+=lat;cell.lon_sum+=lon;cell.check_count+=1;cell.lobster_count+=lobsters;
       if(row.name&&!cell.names.includes(row.name))cell.names.push(row.name);
-      if(row.last_checked_at&&(!cell.last_checked_at||row.last_checked_at>cell.last_checked_at))cell.last_checked_at=row.last_checked_at;
+      if(row.checked_at&&(!cell.last_checked_at||row.checked_at>cell.last_checked_at))cell.last_checked_at=row.checked_at;
     }
 
     let points=[...cells.values()].map(cell=>{
@@ -39,8 +38,8 @@ export async function onRequestGet(context){
       return {
         id:cell.key,
         name:cell.names.length===1?cell.names[0]:`${cell.names.length} burplatser`,
-        lat:cell.lat_sum/Math.max(1,cell.position_weight),
-        lon:cell.lon_sum/Math.max(1,cell.position_weight),
+        lat:cell.lat_sum/Math.max(1,cell.check_count),
+        lon:cell.lon_sum/Math.max(1,cell.check_count),
         check_count:cell.check_count,
         lobster_count:cell.lobster_count,
         avg_catch:avg,
