@@ -21,3 +21,12 @@
   Cache-Control: no-store
 /login.html
   Cache-Control: no-store
+
+/manifest.webmanifest
+  Cache-Control: no-cache
+/icon-192.png
+  Cache-Control: public, max-age=86400
+/icon-512.png
+  Cache-Control: public, max-age=86400
+/apple-touch-icon.png
+  Cache-Control: public, max-age=86400

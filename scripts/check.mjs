@@ -6,6 +6,7 @@ const required=[
   'functions/_middleware.js','functions/_lib/auth.js','functions/api/state.js','functions/api/traps.js','functions/api/checks.js','functions/api/trips.js',
   'functions/api/planned-traps.js','functions/api/planned-traps/[id].js','functions/api/reports.js','functions/api/heatmap.js','functions/api/depth-grid.js','functions/api/depth-contours.js',
   'functions/api/auth/login.js','functions/api/auth/logout.js','functions/api/auth/session.js',
+  'icon-192.png','icon-512.png','apple-touch-icon.png',
   'migrations/0001_init.sql','migrations/0002_day_plans.sql','migrations/0003_planned_traps.sql'
 ];
 for(const file of required){if(!fs.existsSync(path.join(root,file))) throw new Error(`Missing ${file}`)}
@@ -23,11 +24,11 @@ for(const forbidden of ['roundBtn','mobileStartRoundBtn','planDate','mobilePlanD
 if(!migration.includes('CREATE TABLE IF NOT EXISTS planned_traps')) throw new Error('planned_traps migration missing');
 if(!stateApi.includes('planned_traps')) throw new Error('state API must return planned traps');
 if(!sw.includes("networkFirst(req, SHELL_CACHE)")) throw new Error('App shell must be network-first');
-if(!sw.includes('hummerkartan-shell-v7')) throw new Error('Service worker cache not bumped');
-if(!html.includes('boot.js?v=3.0.0')||!html.includes('styles.css?v=3.0.0')||!app.includes("sw.js?v=3.0.0")) throw new Error('Asset version not bumped to 3.0.0');
-if(!fs.readFileSync(path.join(root,'boot.js'),'utf8').includes("app.js?v=3.0.0")) throw new Error('Boot app version not bumped');
+if(!sw.includes('hummerkartan-shell-v8')) throw new Error('Service worker cache not bumped');
+if(!html.includes('boot.js?v=3.1.0')||!html.includes('styles.css?v=3.1.0')||!app.includes("sw.js?v=3.1.0")) throw new Error('Asset version not bumped to 3.0.0');
+if(!fs.readFileSync(path.join(root,'boot.js'),'utf8').includes("app.js?v=3.1.0")) throw new Error('Boot app version not bumped');
 const ids=[...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]);
 const seen=new Set();for(const id of ids){if(seen.has(id))throw new Error(`Duplicate DOM id: ${id}`);seen.add(id)}
 const refs=[...app.matchAll(/\$\('([^']+)'\)/g)].map(m=>m[1]);
 for(const id of new Set(refs)){if(!seen.has(id))throw new Error(`app.js references missing DOM id: ${id}`)}
-console.log('Hummerkartan v3.0.0: karta-i-fokus, Planering/Fiske, planned_traps, rapporter, auth och PWA-kontroller OK');
+console.log('Hummerkartan v3.1.0: karta-i-fokus, Planering/Fiske, planned_traps, rapporter, auth och PWA-kontroller OK');

@@ -1,6 +1,6 @@
 import { authConfigured, readSession } from './_lib/auth.js';
 
-const PUBLIC_PATHS = new Set(['/login', '/login.html', '/api/auth/login']);
+const PUBLIC_PATHS = new Set(['/login', '/login.html', '/api/auth/login', '/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png']);
 
 function isApi(pathname) {
   return pathname === '/api' || pathname.startsWith('/api/');
