@@ -9,7 +9,7 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" />
-  <link rel="stylesheet" href="./styles.css?v=2.2.0" />
+  <link rel="stylesheet" href="./styles.css?v=2.3.0" />
   <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
 </head>
 <body>
@@ -43,7 +43,7 @@
           <button id="addPlannedSpotBtn">＋ Planerad plats</button>
           <button id="savePlanBtn" class="primary">Spara plan</button>
         </div>
-        <p id="planHint" class="pane-hint">Välj burar nedan. Dra ordningen med pilarna. Planerade platser läggs genom att klicka på kartan.</p>
+        <p id="planHint" class="pane-hint">Välj burar nedan och ordna stoppen. De streckade linjerna är bara referenslinjer mellan stopp — kontrollera alltid sjökort och djup.</p>
         <div id="planItems" class="plan-items"></div>
         <div class="section-title"><span>Aktiva burar</span><button id="selectAllPlanBtn" class="text-btn">Lägg till alla</button></div>
         <div id="planTrapPicker" class="desktop-list"></div>
@@ -83,15 +83,21 @@
     </aside>
 
     <header class="topbar glass mobile-only">
-      <div class="brand">
-        <span class="brand-mark">HK</span>
-        <div><strong>Hummerkartan</strong><small id="syncText">Startar…</small></div>
+      <div class="topbar-row">
+        <div class="brand">
+          <span class="brand-mark">HK</span>
+          <div><strong>Hummerkartan</strong><small id="syncText">Startar…</small></div>
+        </div>
+        <div class="top-actions">
+          <button id="heatmapBtn" class="layer-btn" type="button" aria-label="Visa fångstlager">Fångst</button>
+          <button id="themeBtn" class="icon-btn" type="button" aria-label="Byt dag/natt">☾</button>
+          <button id="centerBtn" class="icon-btn" type="button" aria-label="Centrera på båten">◎</button>
+        </div>
       </div>
-      <div class="top-actions">
-        <button id="heatmapBtn" class="layer-btn" type="button" aria-label="Visa fångstlager">Fångst</button>
-        <button id="themeBtn" class="icon-btn" type="button" aria-label="Byt dag/natt">☾</button>
-        <button id="centerBtn" class="icon-btn" type="button" aria-label="Centrera på båten">◎</button>
-      </div>
+      <nav id="mobileModeSwitch" class="mobile-mode-switch" aria-label="Välj huvudläge">
+        <button type="button" class="active" data-mobile-mode="fishing">Fiske</button>
+        <button type="button" data-mobile-mode="planning">Planering</button>
+      </nav>
     </header>
 
     <section class="hud glass mobile-only" aria-label="Navigation">
@@ -105,7 +111,6 @@
       <button id="addTrapBtn" class="primary"><span>＋</span>Sätt bur</button>
       <button id="tripBtn"><span>▶</span><b id="tripBtnText">Starta tur</b></button>
       <button id="roundBtn"><span>↝</span>Runda</button>
-      <button id="mobilePlanBtn"><span>◇</span>Planera</button>
       <button id="trapsBtn"><span>●</span>Burarna</button>
     </nav>
 
@@ -124,7 +129,7 @@
     </aside>
 
     <div id="navBanner" class="nav-banner glass hidden">
-      <div><small>NAVIGERAR TILL</small><strong id="navTargetName">—</strong></div>
+      <div><small>MÅL · RAK REFERENSLINJE</small><strong id="navTargetName">—</strong></div>
       <div><strong id="navDistance">—</strong><small id="navBearing">—</small></div>
       <button id="stopNavBtn" class="icon-btn" type="button">×</button>
     </div>
@@ -144,18 +149,23 @@
       <footer class="sheet-footer sheet-footer-split"><button id="exportBtn">Exportera backup</button><button id="mobileLogoutBtn">Logga ut</button></footer>
     </section>
 
-    <section id="mobilePlanSheet" class="sheet hidden" aria-label="Planera rundan">
-      <div class="sheet-handle"></div>
-      <header><div><small>DAGENS ARBETE</small><h2>Planera rundan</h2></div><button data-close-sheet class="icon-btn">×</button></header>
-      <label class="field-label mobile-plan-date">Datum<input id="mobilePlanDate" type="date" /></label>
-      <div class="mobile-plan-summary"><div><span>Stopp</span><strong id="mobilePlanStopCount">0</strong></div><div><span>Sträcka</span><strong id="mobilePlanDistance">0.0 NM</strong></div><div><span>Burar</span><strong id="mobilePlanTrapCount">0</strong></div></div>
-      <div class="mobile-plan-actions"><button id="mobileAddSpotBtn">＋ Plats på kartan</button><button id="mobileGpsSpotBtn">◎ Min position</button><button id="mobileFitPlanBtn">⌖ Visa plan</button><button id="mobileRefreshPlanBtn">↻ Hämta om</button></div>
-      <div class="mobile-plan-commit"><button id="mobileStartRoundBtn" class="primary">↝ Starta rundan</button><button id="mobileSavePlanBtn">Sparad</button></div>
-      <p id="mobilePlanStatus" class="pane-hint">Lägg till stopp och ändra ordningen. Ändringar autosparas och samma dagsplan används på mobilen och datorn.</p>
-      <p class="pane-hint plan-safety">Planlinjerna är raka referenslinjer. Kontrollera alltid aktuellt sjökort, djup och verkliga förhållanden vid navigering.</p>
-      <div id="mobilePlanItems" class="plan-items mobile-plan-items"></div>
-      <div class="section-title"><span>Aktiva burar</span><button id="mobileAddAllPlanBtn" class="text-btn">Lägg till alla</button></div>
-      <div id="mobilePlanTrapPicker" class="list mobile-plan-picker"></div>
+    <section id="mobilePlanner" class="mobile-planner mobile-only hidden" aria-label="Planeringsläge">
+      <div class="planner-head">
+        <div><small>HUVUDLÄGE</small><h2>Planering</h2></div>
+        <button id="mobileSavePlanBtn" class="planner-save" type="button">Sparad</button>
+      </div>
+      <div class="planner-scroll">
+        <label class="field-label mobile-plan-date">Datum<input id="mobilePlanDate" type="date" /></label>
+        <div class="mobile-plan-summary"><div><span>Stopp</span><strong id="mobilePlanStopCount">0</strong></div><div><span>Rak sträcka</span><strong id="mobilePlanDistance">0.0 NM</strong></div><div><span>Burar</span><strong id="mobilePlanTrapCount">0</strong></div></div>
+        <div class="mobile-plan-actions"><button id="mobileAddSpotBtn">＋ Plats på kartan</button><button id="mobileGpsSpotBtn">◎ Min position</button><button id="mobileFitPlanBtn">⌖ Visa hela planen</button><button id="mobileRefreshPlanBtn">↻ Hämta om</button></div>
+        <div class="mobile-plan-commit"><button id="mobileStartRoundBtn" class="primary">↝ Gå till Fiske och starta rundan</button></div>
+        <p id="mobilePlanStatus" class="pane-hint">Lägg till stopp och ändra ordningen. Ändringar autosparas och samma dagsplan används på mobilen och datorn.</p>
+        <p class="pane-hint plan-safety"><strong>Planlinjer är inte navigationsrutter.</strong> Djupkartan ger överblick, men linjerna går rakt mellan stopp och ska inte användas som kurs genom skärgård eller grunt vatten.</p>
+        <div class="section-title"><span>Planerade stopp</span><span id="mobilePlanMiniStatus">Redigera ordning</span></div>
+        <div id="mobilePlanItems" class="plan-items mobile-plan-items"></div>
+        <div class="section-title"><span>Lägg till aktiva burar</span><button id="mobileAddAllPlanBtn" class="text-btn">Lägg till alla</button></div>
+        <div id="mobilePlanTrapPicker" class="list mobile-plan-picker"></div>
+      </div>
     </section>
 
     <section id="planSpotSheet" class="sheet compact hidden" aria-label="Planerad plats">
@@ -205,6 +215,6 @@
 
     <div id="toast" class="toast hidden" role="status"></div>
   </main>
-  <script type="module" src="./boot.js?v=2.2.0"></script>
+  <script type="module" src="./boot.js?v=2.3.0"></script>
 </body>
 </html>

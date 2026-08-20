@@ -14,15 +14,15 @@ const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 const planApi=fs.readFileSync(path.join(root,'functions/api/plan.js'),'utf8');
-for(const token of ['dayPlan','roundSequence','mobilePlanSheet','mobileFitPlanBtn','mobileRefreshPlanBtn','mobileStartRoundBtn','placementBanner','cancelPlacementBtn','skipSelectedTrap','openTrapFromSelectedSpot','planConflict','getGpsFix','syncWorkspace']){
-  if(!app.includes(token)&&!html.includes(token)) throw new Error(`Missing v2.2 feature token: ${token}`);
+for(const token of ['dayPlan','roundSequence','mobilePlanner','mobileModeSwitch','mobileFitPlanBtn','mobileRefreshPlanBtn','mobileStartRoundBtn','placementBanner','cancelPlacementBtn','skipSelectedTrap','openTrapFromSelectedSpot','planConflict','getGpsFix','syncWorkspace']){
+  if(!app.includes(token)&&!html.includes(token)) throw new Error(`Missing v2.3 feature token: ${token}`);
 }
 if(!planApi.includes('base_updated_at')||!planApi.includes('409')) throw new Error('Plan concurrency guard missing');
 if(!sw.includes("networkFirst(req, SHELL_CACHE)")) throw new Error('App shell must be network-first');
 if(!sw.includes('MAP_CACHE')) throw new Error('Map runtime cache missing');
-if(!html.includes('boot.js?v=2.2.0')||!app.includes("sw.js?v=2.2.0")) throw new Error('Asset version not bumped to 2.2.0');
+if(!html.includes('boot.js?v=2.3.0')||!html.includes('styles.css?v=2.3.0')||!app.includes("sw.js?v=2.3.0")) throw new Error('Asset version not bumped to 2.3.0');
 const ids=[...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]);
 const seen=new Set(); for(const id of ids){if(seen.has(id)) throw new Error(`Duplicate DOM id: ${id}`); seen.add(id)}
 const refs=[...app.matchAll(/\$\('([^']+)'\)/g)].map(m=>m[1]);
 for(const id of new Set(refs)){if(!seen.has(id)) throw new Error(`app.js references missing DOM id: ${id}`)}
-console.log('Hummerkartan v2.2.0: mobil planering, round-flöde, auth, PWA-uppdatering och plan-konfliktskydd OK');
+console.log('Hummerkartan v2.3.0: separata Fiske/Planering-lägen, mobil planering, round-flöde, auth och PWA-kontroller OK');

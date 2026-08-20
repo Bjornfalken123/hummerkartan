@@ -1,17 +1,18 @@
 # Hummerkartan
 
-Aktuell release: **Hummerkartan 2.2**.
+Aktuell release: **Hummerkartan 2.3**.
 
 Familjens gemensamma sjökort, planering, hummerrunda och fångstjournal för svenska västkusten.
 
-## Version 2.2
+## Version 2.3
 
 Samma D1-data och samma dagsplan används på telefon och dator, men gränssnittet är anpassat efter arbetsuppgiften.
 
-### Telefon – fiske och planering
+### Telefon – två huvudlägen
 
-- Sjökort som huvudyta med GPS, fart, kurs och aktiv tur.
-- **Planera** direkt i mobilen: lägg en plats på kartan eller från aktuell GPS-position.
+- **Fiske** är ett eget huvudläge med GPS, fart, tur, Runda, burar och fångstregistrering.
+- **Planering** är ett separat huvudläge med en permanent planeringsarbetsyta i stället för en modal ruta.
+- Lägg en planerad plats på kartan eller från aktuell GPS-position.
 - Lägg till befintliga aktiva burar i dagens plan.
 - Ändra ordningen, flytta, döp om och ta bort planerade platser.
 - Planen autosparas och är samma plan som visas på desktop.
@@ -26,7 +27,7 @@ Samma D1-data och samma dagsplan används på telefon och dator, men gränssnitt
 - Permanent planeringspanel bredvid sjökortet.
 - Flikar för **Plan**, **Burar**, **Turer** och **Fångst**.
 - Bygg dagens runda och ändra ordningen.
-- Visa ungefärlig rak linjesträcka i nautiska mil.
+- Visa ungefärlig **rak referenssträcka** i nautiska mil; den är inte en beräknad farled eller navigationsrutt.
 - Lägg ut planerade platser direkt på kartan.
 - Klicka på planerade platser för att öppna samma åtgärder som på mobilen.
 - Burregister med sökning och filter.
@@ -64,4 +65,4 @@ Pages-bindningen måste heta `DB`.
 
 ## Viktigt
 
-Hummerkartan är ett personligt planerings- och loggverktyg. Kartdata, GPS-värden och raka planeringslinjer ersätter inte officiellt sjökort, säker navigation eller egen bedömning av farbar väg och förhållanden.
+Hummerkartan är ett personligt planerings- och loggverktyg. Planlinjer och målstreck är raka referenslinjer, inte beräknade farleder. EMODnet-djupet i appen är för grovt för automatisk sjönavigering och ersätter inte aktuellt officiellt sjökort eller ansvarig vuxens bedömning av förhållanden.
