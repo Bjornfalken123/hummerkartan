@@ -1,68 +1,41 @@
-# Hummerkartan
+# Hummerkartan v3
 
-Aktuell release: **Hummerkartan 2.3**.
+Privat familjeapp för hummerfiske på Cloudflare Pages + D1.
 
-Familjens gemensamma sjökort, planering, hummerrunda och fångstjournal för svenska västkusten.
+## Appens tre delar
 
-## Version 2.3
+- **Planering:** karta, djup, fångst-heatmap, planerade tinor och tinor i vattnet.
+- **Fiske:** GPS/tur, vittjning och sättning av tinor.
+- **Rapporter:** fångststatistik, bästa tinor och turhistorik.
 
-Samma D1-data och samma dagsplan används på telefon och dator, men gränssnittet är anpassat efter arbetsuppgiften.
+Kartan är huvudytan. V3 använder inte längre dagsplan, stoppordning eller "Runda" i gränssnittet.
 
-### Telefon – två huvudlägen
+## Cloudflare
 
-- **Fiske** är ett eget huvudläge med GPS, fart, tur, Runda, burar och fångstregistrering.
-- **Planering** är ett separat huvudläge med en permanent planeringsarbetsyta i stället för en modal ruta.
-- Lägg en planerad plats på kartan eller från aktuell GPS-position.
-- Lägg till befintliga aktiva burar i dagens plan.
-- Ändra ordningen, flytta, döp om och ta bort planerade platser.
-- Planen autosparas och är samma plan som visas på desktop.
-- **Runda** följer både befintliga burar och planerade platser i planens ordning.
-- En planerad plats kan öppnas, hoppas över, flyttas eller ersättas av en riktig bur.
-- När en planerad plats blir en bur ersätts planpunkten i stället för att skapa ett dubbelt stopp.
-- Snabb vittjning och fångstregistrering.
-- Lokal cache och offlinekö vid dålig täckning.
+Pages-projektet behöver:
 
-### Desktop – planeringsläge
-
-- Permanent planeringspanel bredvid sjökortet.
-- Flikar för **Plan**, **Burar**, **Turer** och **Fångst**.
-- Bygg dagens runda och ändra ordningen.
-- Visa ungefärlig **rak referenssträcka** i nautiska mil; den är inte en beräknad farled eller navigationsrutt.
-- Lägg ut planerade platser direkt på kartan.
-- Klicka på planerade platser för att öppna samma åtgärder som på mobilen.
-- Burregister med sökning och filter.
-- Visa historiska GPS-spår från tidigare turer.
-- Fångstheatmap och ranking av områden.
-
-### Privat inloggning
-
-Appen skyddas av `functions/_middleware.js` innan både statiska filer och API-routes levereras.
-
-Inloggningsuppgifterna ligger **inte** i GitHub. De anges som Cloudflare Pages Variables/Secrets:
-
+- D1-binding `DB`
 - `AUTH_USERNAME`
-- `AUTH_PASSWORD`
-- `AUTH_SECRET`
-
-`AUTH_PASSWORD` och `AUTH_SECRET` ska vara krypterade Secrets. Sessionen lagras i en HttpOnly-cookie. **Logga ut** rensar även Hummerkartans lokala cache/data på enheten.
-
-## Gemensam familjedata
-
-Cloudflare D1 lagrar burar, vittjningar, turer, GPS-spår och dagsplaner.
-
-## Deployment
-
-Se `docs/CLOUDFLARE-SETUP.md`.
-
-## D1
+- krypterad `AUTH_PASSWORD`
+- krypterad `AUTH_SECRET`
 
 Kör migrationerna i ordning:
 
 1. `migrations/0001_init.sql`
 2. `migrations/0002_day_plans.sql`
+3. `migrations/0003_planned_traps.sql`
 
-Pages-bindningen måste heta `DB`.
+För ett befintligt v2-projekt behöver du bara köra `0003_planned_traps.sql`.
 
-## Viktigt
+## Lokal kontroll
 
-Hummerkartan är ett personligt planerings- och loggverktyg. Planlinjer och målstreck är raka referenslinjer, inte beräknade farleder. EMODnet-djupet i appen är för grovt för automatisk sjönavigering och ersätter inte aktuellt officiellt sjökort eller ansvarig vuxens bedömning av förhållanden.
+```bash
+npm install
+npm run check
+```
+
+Lokal Pages-utveckling:
+
+```bash
+npm run dev
+```

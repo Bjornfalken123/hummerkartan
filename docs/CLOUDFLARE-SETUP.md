@@ -1,10 +1,10 @@
-# Cloudflare-setup för Hummerkartan 2.2
+# Cloudflare-setup för Hummerkartan v3
 
 ## Arkitektur
 
 - Cloudflare **Pages** kopplat till GitHub.
 - Pages **Functions** i `/functions` för API och inloggning.
-- Cloudflare **D1** för burar, vittjningar, turer, GPS-spår och dagsplaner.
+- Cloudflare **D1** för tinor, planerade tinor, vittjningar, turer och GPS-spår.
 - Appens egen server-side inloggning via Pages middleware och signerad HttpOnly-cookie.
 - MapTiler används i klienten för kartan.
 
@@ -33,6 +33,7 @@ Skapa databasen, t.ex. `hummerkartan-db`, och kör:
 
 1. `migrations/0001_init.sql`
 2. `migrations/0002_day_plans.sql`
+3. `migrations/0003_planned_traps.sql`
 
 Bind sedan databasen till Pages-projektet:
 
@@ -67,7 +68,7 @@ Efter deployment:
 3. Logga in med de värden du satt i Cloudflare.
 4. Kontrollera att appen öppnas.
 5. Testa `/api/health` när du är inloggad. Svaret ska innehålla `"db": true`.
-6. Skapa en testplan på desktop och kontrollera att samma plan visas via **Planera** på mobilen.
+6. Planera en tina på desktop och kontrollera att samma planerade tina visas i **Planering** på mobilen.
 7. Logga ut och kontrollera att appen åter visar inloggningssidan.
 
 ## 6. Preview deployments
@@ -81,3 +82,13 @@ MapTiler-nyckeln är en publik klientnyckel. Begränsa den till Hummerkartans do
 ## 8. Ingen separat Worker behövs
 
 Pages Functions körs på Workers-runtime. En separat Worker behövs inte för den här versionen.
+
+## Uppgradering till v3
+
+Efter att v3-filerna har lagts på GitHub, kör följande i D1 Console innan du använder Planering:
+
+```sql
+-- kör hela innehållet i migrations/0003_planned_traps.sql
+```
+
+V3 använder tabellen `planned_traps`. De gamla dagsplanstabellerna ligger kvar men används inte av v3-gränssnittet.
