@@ -10,11 +10,12 @@ export async function onRequestGet(context){
     const db=getDb(context);
     const rows=await db.prepare(`
       SELECT c.id,c.trap_id,t.name,
-             COALESCE(c.lat,t.lat) AS lat,
-             COALESCE(c.lon,t.lon) AS lon,
+             COALESCE(cl.trap_lat,t.lat) AS lat,
+             COALESCE(cl.trap_lon,t.lon) AS lon,
              c.lobster_count,c.checked_at
       FROM checks c
       JOIN traps t ON t.id=c.trap_id
+      LEFT JOIN check_locations cl ON cl.check_id=c.id
       ORDER BY c.checked_at
     `).all();
 

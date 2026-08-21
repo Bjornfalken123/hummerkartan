@@ -12,7 +12,7 @@
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" />
-  <link rel="stylesheet" href="./styles.css?v=3.6.0" />
+  <link rel="stylesheet" href="./styles.css?v=3.6.2" />
   <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
 </head>
 <body>
@@ -184,7 +184,7 @@
       <form id="checkForm" class="check-form">
         <div class="catch-counter"><button type="button" data-count="-1">−</button><output id="lobsterCount">0</output><button type="button" data-count="1">＋</button></div>
         <span class="counter-label">hummer</span>
-        <details class="more-fields"><summary>Mer</summary><label>Återutsatta<input id="releasedCount" type="number" min="0" value="0" inputmode="numeric" /></label><label>Anteckning<textarea id="checkNotes" rows="2" maxlength="1000"></textarea></label></details>
+        <details class="more-fields"><summary>Mer</summary><label class="desktop-check-time">Tidpunkt<input id="checkAt" type="datetime-local" /></label><label>Återutsatta<input id="releasedCount" type="number" min="0" value="0" inputmode="numeric" /></label><label>Anteckning<textarea id="checkNotes" rows="2" maxlength="1000"></textarea></label></details>
         <button type="submit" class="primary wide">Spara</button>
       </form>
     </section>
@@ -197,6 +197,7 @@
         <input id="detailTrapId" type="hidden" />
         <label>Namn<input id="detailTrapName" maxlength="80" required /></label>
         <label>Anteckning<textarea id="detailTrapNotes" rows="2" maxlength="1000"></textarea></label>
+        <button id="detailVittjaBtn" type="button" class="primary wide">Vittja</button>
         <button id="moveTrapBtn" type="button" class="wide">Justera position</button>
         <div class="detail-actions"><button id="retrieveTrapBtn" type="button" class="danger">Ta upp tina</button><button type="submit" class="primary">Spara</button></div>
       </form>
@@ -277,6 +278,6 @@
 
     <div id="toast" class="toast hidden" role="status"></div>
   </main>
-  <script type="module" src="./boot.js?v=3.6.0"></script>
+  <script type="module" src="./boot.js?v=3.6.2"></script>
 </body>
 </html>

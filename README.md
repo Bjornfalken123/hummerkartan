@@ -53,3 +53,10 @@ Lokal Pages-utveckling:
 ```bash
 npm run dev
 ```
+
+
+## v3.6.1 – fångstplats
+Heatmap/fångstplats och telefonens registrerings-GPS är separerade. Kör `migrations/0006_check_locations.sql` före deploy.
+
+## v3.6.2 – korrekt fångstplats + desktopvittjning
+Heatmap använder tinans positionssnapshot. Desktop kan vittja aktiva tinor och ange tidpunkt för efterhandsregistrering. Kör `migrations/0006_check_locations.sql` före deploy.

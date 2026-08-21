@@ -188,3 +188,6 @@ body.night{--bg:#030d15;--panel:#061522;--surface:#0a1d2b;--surface-2:#0d2536;--
 /* v3.6 final QA — current work status stays separate from historical catch colors */
 .report-status-now,.report-season{margin-top:0}.report-status-now .section-title,.report-season .section-title,.report-status-title{margin-top:0}
 .reports-scroll>.report-season{margin-top:14px}
+
+.desktop-check-time{display:none!important}
+@media(min-width:900px){.desktop-check-time{display:grid!important}}
