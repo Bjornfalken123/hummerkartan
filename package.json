@@ -1,11 +1,11 @@
 {
   "name": "hummerkartan",
-  "version": "3.6.2",
+  "version": "3.6.3",
   "private": true,
   "scripts": {
     "dev": "wrangler pages dev .",
     "check": "node scripts/check.mjs",
-    "test": "node tests/gps.test.mjs && node tests/soak.test.mjs"
+    "test": "node tests/gps.test.mjs && node tests/soak.test.mjs && node tests/trip-resolver.test.mjs && node tests/common-validation.test.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

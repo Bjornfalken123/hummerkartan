@@ -33,6 +33,7 @@ export function text(value, fallback = "") {
 }
 
 export function finite(value, fallback = null) {
+  if (value == null || value === '') return fallback;
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
 }
@@ -55,6 +56,7 @@ export function dbError(error) {
 }
 
 export function validLatLon(lat, lon) {
+  if (lat == null || lon == null || lat === '' || lon === '') return false;
   return Number.isFinite(Number(lat)) && Number.isFinite(Number(lon)) && Math.abs(Number(lat)) <= 90 && Math.abs(Number(lon)) <= 180;
 }
 
@@ -81,6 +83,18 @@ export function positionEventStatement(db, eventType, entityId, meta, actor) {
     .bind(`${eventType}:${entityId}`,eventType,entityId,meta.lat,meta.lon,meta.accuracy_m,meta.speed_kn,meta.course,meta.fix_at,meta.action_at,meta.timing_error_ms,meta.method,isoNow(),actor);
 }
 
+
+
+export async function resolveTripId(db, requestedId, occurredAt) {
+  const at=text(occurredAt),requested=text(requestedId);
+  if(!at)return '';
+  if(requested){
+    const row=await db.prepare(`SELECT id,started_at,ended_at FROM trips WHERE id=? LIMIT 1`).bind(requested).first();
+    if(row&&row.started_at<=at&&(!row.ended_at||row.ended_at>=at))return text(row.id);
+  }
+  const match=await db.prepare(`SELECT id FROM trips WHERE started_at<=? AND (ended_at IS NULL OR ended_at>=?) ORDER BY started_at DESC LIMIT 1`).bind(at,at).first();
+  return text(match?.id);
+}
 
 export function tripEventStatement(db, tripId, eventType, entityId, occurredAt, actor) {
   const tid=text(tripId),eid=text(entityId),at=text(occurredAt);

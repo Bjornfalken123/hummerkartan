@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import { finite, validLatLon } from '../functions/_lib/common.js';
+assert.equal(finite(null),null);
+assert.equal(finite(undefined),null);
+assert.equal(finite('',7),7);
+assert.equal(finite('12.5'),12.5);
+assert.equal(validLatLon(null,null),false);
+assert.equal(validLatLon('',11.4),false);
+assert.equal(validLatLon(58.1,11.4),true);
+assert.equal(validLatLon(91,11.4),false);
+console.log('Numeric/GPS null validation OK');

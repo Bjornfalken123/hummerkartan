@@ -3,6 +3,8 @@ import { getDb, json, dbError, actorFromContext, readJson, finite, text, isoNow,
 export async function onRequestPost(context){
   try{
     const db=getDb(context),tripId=context.params.id,body=await readJson(context.request),actor=actorFromContext(context);
+    const trip=await db.prepare('SELECT id FROM trips WHERE id=?').bind(tripId).first();
+    if(!trip)return json({ok:true,inserted:0,stale_trip:true});
     const points=Array.isArray(body.points)?body.points.slice(0,300):[];
     if(!points.length) return json({ok:true,inserted:0});
     const statements=[];

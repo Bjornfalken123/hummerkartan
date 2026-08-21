@@ -3,7 +3,7 @@ import { getDb, json, dbError, actorFromContext } from '../_lib/common.js';
 export async function onRequestGet(context) {
   try {
     const db = getDb(context);
-    const [traps,recentChecks,recentTrips,planned,positionEventsTable,tripEventsTable,correctionEventsTable] = await Promise.all([
+    const [traps,recentChecks,recentTrips,planned,positionEventsTable,tripEventsTable,correctionEventsTable,checkLocationsTable] = await Promise.all([
       db.prepare(`
         SELECT t.*,
           (SELECT c.lobster_count FROM checks c WHERE c.trap_id=t.id ORDER BY c.checked_at DESC LIMIT 1) AS last_lobster_count,
@@ -16,10 +16,11 @@ export async function onRequestGet(context) {
       db.prepare(`SELECT * FROM planned_traps ORDER BY created_at,lower(name)`).all(),
       db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='position_events'`).first(),
       db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='trip_events'`).first(),
-      db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='correction_events'`).first()
+      db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='correction_events'`).first(),
+      db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='check_locations'`).first()
     ]);
     return json({
-      ok:true,user:actorFromContext(context),traps:traps.results||[],checks:recentChecks.results||[],trips:recentTrips.results||[],planned_traps:planned.results||[],capabilities:{position_events:Boolean(positionEventsTable),trip_events:Boolean(tripEventsTable),correction_events:Boolean(correctionEventsTable)},serverTime:new Date().toISOString()
+      ok:true,user:actorFromContext(context),traps:traps.results||[],checks:recentChecks.results||[],trips:recentTrips.results||[],planned_traps:planned.results||[],capabilities:{position_events:Boolean(positionEventsTable),trip_events:Boolean(tripEventsTable),correction_events:Boolean(correctionEventsTable),check_locations:Boolean(checkLocationsTable)},serverTime:new Date().toISOString()
     });
   } catch (error) { return dbError(error); }
 }

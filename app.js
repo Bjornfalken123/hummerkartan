@@ -94,8 +94,10 @@ async function flushPending(){
 }
 
 function applyServerState(data){
-  state.traps=Array.isArray(data.traps)?data.traps:[];state.checks=Array.isArray(data.checks)?data.checks:[];state.trips=Array.isArray(data.trips)?data.trips:[];state.planned=Array.isArray(data.planned_traps)?data.planned_traps:[];state.user=data.user||'familj';state.serverTime=data.serverTime||null;state.capabilities=data.capabilities||{};const serverMs=new Date(state.serverTime||'').getTime();if(Number.isFinite(serverMs))serverClockOffsetMs=serverMs-Date.now();saveState();renderAll();
-  if((state.capabilities.position_events===false||state.capabilities.trip_events===false||state.capabilities.correction_events===false)&&!schemaWarningShown){schemaWarningShown=true;toast(state.capabilities.position_events===false?'D1 behöver migration 0004_position_events.sql':'D1 behöver migration 0005_trip_events_corrections.sql',5600)}
+  state.traps=Array.isArray(data.traps)?data.traps:[];state.checks=Array.isArray(data.checks)?data.checks:[];state.trips=Array.isArray(data.trips)?data.trips:[];state.planned=Array.isArray(data.planned_traps)?data.planned_traps:[];state.user=data.user||'familj';state.serverTime=data.serverTime||null;state.capabilities=data.capabilities||{};const serverMs=new Date(state.serverTime||'').getTime();if(Number.isFinite(serverMs))serverClockOffsetMs=serverMs-Date.now();
+  if(activeTrip){const serverTrip=state.trips.find(t=>t.id===activeTrip.id),pending=loadJson(PENDING_KEY,[]),pendingStart=pending.some(item=>item.method==='POST'&&item.url==='/api/trips'&&item.body?.id===activeTrip.id);if((!serverTrip||serverTrip.ended_at)&&!pendingStart){activeTrip=null;tripPoints=[];trackBatch=[];trackSeq=0;tripDistanceNm=0;saveJson(TRIP_KEY,null);renderTrack()}}
+  saveState();renderAll();
+  if((state.capabilities.position_events===false||state.capabilities.trip_events===false||state.capabilities.correction_events===false||state.capabilities.check_locations===false)&&!schemaWarningShown){schemaWarningShown=true;const msg=state.capabilities.position_events===false?'D1 behöver migration 0004_position_events.sql':(state.capabilities.trip_events===false||state.capabilities.correction_events===false)?'D1 behöver migration 0005_trip_events_corrections.sql':'D1 behöver migration 0006_check_locations.sql';toast(msg,5600)}
 }
 function restoreCachedState(){const cached=loadJson(CACHE_KEY,null)||loadJson(LEGACY_CACHE_KEY,null);if(!cached)return false;state.traps=Array.isArray(cached.traps)?cached.traps:[];state.checks=Array.isArray(cached.checks)?cached.checks:[];state.trips=Array.isArray(cached.trips)?cached.trips:[];state.planned=Array.isArray(cached.planned)?cached.planned:Array.isArray(cached.planned_traps)?cached.planned_traps:[];state.user=cached.user||'familj';renderAll();return true}
 async function syncState({quiet=false}={}){
@@ -367,4 +369,4 @@ function initMap(){
 }
 
 bindUi();setTheme(theme);applyMobileMode();initMap();
-syncTimer=setInterval(()=>syncState({quiet:true}),15000);setInterval(()=>{if(activeTrip)flushTrackBatch()},10000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=3.6.2').catch(()=>{});
+syncTimer=setInterval(()=>syncState({quiet:true}),15000);setInterval(()=>{if(activeTrip)flushTrackBatch()},10000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=3.6.3').catch(()=>{});

@@ -1,4 +1,4 @@
-import { getDb, json, dbError, actorFromContext, readJson, finite, text, uuid, isoNow, normalizeTrapStatus, validLatLon, positionMetaFromBody, positionEventStatement, tripEventStatement } from "../_lib/common.js";
+import { getDb, json, dbError, actorFromContext, readJson, finite, text, uuid, isoNow, normalizeTrapStatus, validLatLon, positionMetaFromBody, positionEventStatement, tripEventStatement, resolveTripId } from "../_lib/common.js";
 
 export async function onRequestGet(context) {
   try {
@@ -22,7 +22,8 @@ export async function onRequestPost(context) {
     `).bind(id,name,lat,lon,normalizeTrapStatus(body.status),setAt,null,text(body.notes).slice(0,1000),now,now,actor)];
     const meta=positionMetaFromBody(body,lat,lon),event=positionEventStatement(db,'trap_set',id,meta,actor);
     if(event) statements.push(event);
-    const tripEvent=tripEventStatement(db,body.trip_id,'trap_set',id,setAt,actor);if(tripEvent)statements.push(tripEvent);
+    const tripId=await resolveTripId(db,body.trip_id,setAt);
+    const tripEvent=tripEventStatement(db,tripId,'trap_set',id,setAt,actor);if(tripEvent)statements.push(tripEvent);
     await db.batch(statements);
     const trap=await db.prepare("SELECT * FROM traps WHERE id=?").bind(id).first();
     return json({ ok:true, trap }, 201);
