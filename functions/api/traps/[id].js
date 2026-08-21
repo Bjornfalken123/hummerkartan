@@ -1,4 +1,4 @@
-import { getDb, json, dbError, actorFromContext, readJson, finite, text, isoNow, normalizeTrapStatus } from "../../_lib/common.js";
+import { getDb, json, dbError, actorFromContext, readJson, finite, text, isoNow, normalizeTrapStatus, validLatLon } from "../../_lib/common.js";
 
 export async function onRequestPatch(context) {
   try {
@@ -8,6 +8,7 @@ export async function onRequestPatch(context) {
     const name=body.name===undefined?current.name:(text(body.name,"Bur").slice(0,80)||"Bur");
     const lat=body.lat===undefined?current.lat:finite(body.lat,current.lat);
     const lon=body.lon===undefined?current.lon:finite(body.lon,current.lon);
+    if(!validLatLon(lat,lon)) return json({ok:false,error:"Ogiltig position"},400);
     const status=body.status===undefined?current.status:normalizeTrapStatus(body.status);
     const notes=body.notes===undefined?current.notes:text(body.notes).slice(0,1000);
     const setAt=body.set_at===undefined?current.set_at:text(body.set_at,current.set_at);

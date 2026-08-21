@@ -1,4 +1,4 @@
-import { getDb, json, dbError, actorFromContext, readJson, finite, text, uuid, isoNow, normalizeTrapStatus } from "../_lib/common.js";
+import { getDb, json, dbError, actorFromContext, readJson, finite, text, uuid, isoNow, normalizeTrapStatus, validLatLon, positionMetaFromBody, positionEventStatement } from "../_lib/common.js";
 
 export async function onRequestGet(context) {
   try {
@@ -12,14 +12,17 @@ export async function onRequestPost(context) {
   try {
     const db = getDb(context), body = await readJson(context.request), actor = actorFromContext(context);
     const id = uuid(body.id), lat = finite(body.lat), lon = finite(body.lon);
-    if (lat == null || lon == null || Math.abs(lat) > 90 || Math.abs(lon) > 180) return json({ ok:false, error:"Ogiltig position" }, 400);
+    if (!validLatLon(lat, lon)) return json({ ok:false, error:"Ogiltig position" }, 400);
     const now = isoNow();
-    const name = text(body.name, "Bur").slice(0, 80) || "Bur";
+    const name = text(body.name, "Tina").slice(0, 80) || "Tina";
     const setAt = text(body.set_at, now) || now;
-    await db.prepare(`
+    const statements=[db.prepare(`
       INSERT OR IGNORE INTO traps (id,name,lat,lon,status,set_at,last_checked_at,notes,created_at,updated_at,updated_by)
       VALUES (?,?,?,?,?,?,?,?,?,?,?)
-    `).bind(id,name,lat,lon,normalizeTrapStatus(body.status),setAt,null,text(body.notes).slice(0,1000),now,now,actor).run();
+    `).bind(id,name,lat,lon,normalizeTrapStatus(body.status),setAt,null,text(body.notes).slice(0,1000),now,now,actor)];
+    const meta=positionMetaFromBody(body,lat,lon),event=positionEventStatement(db,'trap_set',id,meta,actor);
+    if(event) statements.push(event);
+    await db.batch(statements);
     const trap=await db.prepare("SELECT * FROM traps WHERE id=?").bind(id).first();
     return json({ ok:true, trap }, 201);
   } catch (error) { return dbError(error); }

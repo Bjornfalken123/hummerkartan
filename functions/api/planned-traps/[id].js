@@ -1,4 +1,4 @@
-import { getDb, json, dbError, actorFromContext, readJson, finite, text, isoNow } from '../../_lib/common.js';
+import { getDb, json, dbError, actorFromContext, readJson, finite, text, isoNow, validLatLon } from '../../_lib/common.js';
 
 export async function onRequestPatch(context) {
   try {
@@ -8,7 +8,7 @@ export async function onRequestPatch(context) {
     const name=body.name===undefined?current.name:(text(body.name,'Planerad tina').slice(0,80)||'Planerad tina');
     const lat=body.lat===undefined?current.lat:finite(body.lat,current.lat),lon=body.lon===undefined?current.lon:finite(body.lon,current.lon);
     const notes=body.notes===undefined?current.notes:text(body.notes).slice(0,500);
-    if(Math.abs(Number(lat))>90||Math.abs(Number(lon))>180) return json({ok:false,error:'Ogiltig position'},400);
+    if(!validLatLon(lat,lon)) return json({ok:false,error:'Ogiltig position'},400);
     await db.prepare('UPDATE planned_traps SET name=?,lat=?,lon=?,notes=?,updated_at=?,updated_by=? WHERE id=?')
       .bind(name,lat,lon,notes,now,actor,id).run();
     return json({ok:true,planned_trap:{...current,name,lat,lon,notes,updated_at:now,updated_by:actor}});
