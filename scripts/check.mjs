@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 const root=path.resolve(new URL('..', import.meta.url).pathname);
 const required=[
-  'index.html','app.js','gps.js','styles.css','depth.js','manifest.webmanifest','sw.js','boot.js','login.html','_headers',
+  'index.html','app.js','gps.js','soak.js','styles.css','RELEASE-V3.6.md','depth.js','manifest.webmanifest','sw.js','boot.js','login.html','_headers',
   'functions/_middleware.js','functions/_lib/auth.js','functions/api/state.js','functions/api/traps.js','functions/api/checks.js','functions/api/trips.js',
   'functions/api/planned-traps.js','functions/api/planned-traps/[id].js','functions/api/planned-traps/[id]/set.js','functions/api/reports.js','functions/api/heatmap.js','functions/api/depth-grid.js','functions/api/depth-contours.js',
   'functions/api/trips/[id].js','functions/api/checks/[id].js',
@@ -17,6 +17,7 @@ const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 const stateApi=fs.readFileSync(path.join(root,'functions/api/state.js'),'utf8');
 const migration=fs.readFileSync(path.join(root,'migrations/0003_planned_traps.sql'),'utf8');
 const gps=fs.readFileSync(path.join(root,'gps.js'),'utf8');
+const soak=fs.readFileSync(path.join(root,'soak.js'),'utf8');
 const positionMigration=fs.readFileSync(path.join(root,'migrations/0004_position_events.sql'),'utf8');
 const tripMigration=fs.readFileSync(path.join(root,'migrations/0005_trip_events_corrections.sql'),'utf8');
 for(const token of ['mobile-mode-planning','planAddBtn','planOverviewBtn','fishSetTrapBtn','tripPill','reportsView','planned_traps','requestSetTrap','saveCheck','toggleHeatmap','placementCrosshair']){
@@ -28,12 +29,14 @@ for(const forbidden of ['roundBtn','mobileStartRoundBtn','planDate','mobilePlanD
 if(!migration.includes('CREATE TABLE IF NOT EXISTS planned_traps')) throw new Error('planned_traps migration missing');
 if(!stateApi.includes('planned_traps')) throw new Error('state API must return planned traps');
 if(!sw.includes("networkFirst(req, SHELL_CACHE)")) throw new Error('App shell must be network-first');
-if(!sw.includes('hummerkartan-shell-v14')) throw new Error('Service worker cache not bumped');
-if(!html.includes('boot.js?v=3.5.0')||!html.includes('styles.css?v=3.5.0')||!app.includes("sw.js?v=3.5.0")) throw new Error('Asset version not bumped to 3.5.0');
-if(!fs.readFileSync(path.join(root,'boot.js'),'utf8').includes("app.js?v=3.5.0")) throw new Error('Boot app version not bumped');
+if(!sw.includes('hummerkartan-shell-v15')) throw new Error('Service worker cache not bumped');
+if(!html.includes('boot.js?v=3.6.0')||!html.includes('styles.css?v=3.6.0')||!app.includes("sw.js?v=3.6.0")) throw new Error('Asset version not bumped to 3.6.0');
+if(!fs.readFileSync(path.join(root,'boot.js'),'utf8').includes("app.js?v=3.6.0")) throw new Error('Boot app version not bumped');
 if(!app.includes("TRAP_SOURCE_ID='hk-traps-source'")||!app.includes("PLANNED_SOURCE_ID='hk-planned-source'")) throw new Error('Map point GeoJSON layers missing');
 if(app.includes("new maptilersdk.Marker({element:el,anchor:'bottom'")) throw new Error('Trap/planned DOM markers must not be used');
 if(!app.includes("maximumAge:0")||!app.includes('captureSetPosition')||!gps.includes('time-interpolated')) throw new Error('Robust GPS capture missing');
+if(!soak.includes('FRESH_MAX')||!soak.includes('DUE_MAX')||!app.includes('soakSummaryHtml')) throw new Error('Soak-age status system missing');
+if(!html.includes('Fångstdata')||!app.includes('const visible=heatmapVisible')) throw new Error('Fishing heatmap access missing');
 if(!positionMigration.includes('CREATE TABLE IF NOT EXISTS position_events')) throw new Error('position_events migration missing');
 if(!tripMigration.includes('CREATE TABLE IF NOT EXISTS trip_events')||!tripMigration.includes('CREATE TABLE IF NOT EXISTS correction_events')) throw new Error('v3.5 trip/correction migration missing');
 if(!tripMigration.includes('CREATE TABLE IF NOT EXISTS app_migrations')) throw new Error('v3.5 migration must be self-contained');
@@ -41,11 +44,14 @@ if(!stateApi.includes('trip_events')||!stateApi.includes('correction_events')) t
 if(!app.includes('trackPointDecision')||!app.includes('maxPitch:0')||!app.includes('disableRotation')) throw new Error('GPS jitter filter or 2D map lock missing');
 if(!app.includes('/planned-traps/${encodeURIComponent(planned.id)}/set')) throw new Error('Atomic planned-to-set conversion missing');
 if(app.includes('new maptilersdk.Marker({element:el')) throw new Error('DOM map markers should not be used for app entities');
-for(const token of ['nearbyPlanCard','menuTripsBtn','desktopTripsList','tripCompleteSheet','confirmSheet','editCheckSheet']){if(!html.includes(`id="${token}"`))throw new Error(`Missing v3.5 UI: ${token}`)}
-for(const token of ['renderNearbyPlanSuggestion','openTripDetail','saveCheckEdit','confirmAction','NEARBY_PLAN_ENTER_M','trip_id:activeTrip?.id','tripStartPromise','selectedTrapId||selectedPlannedId']){if(!app.includes(token))throw new Error(`Missing v3.5 behavior: ${token}`)}
+for(const token of ['nearbyActionCard','menuTripsBtn','desktopTripsList','tripCompleteSheet','confirmSheet','editCheckSheet','trapStatusSummary','desktopSoakSummary','mobileReportSoakSummary','desktopReportSoakSummary']){if(!html.includes(`id="${token}"`))throw new Error(`Missing v3.5 UI: ${token}`)}
+for(const token of ['renderNearbyWorkSuggestion','nearestWorkCandidate','trapNeedsCheckSuggestion','openTripDetail','saveCheckEdit','confirmAction','NEARBY_WORK_ENTER_M','trip_id:activeTrip?.id','tripStartPromise','selectedTrapId||selectedPlannedId']){if(!app.includes(token))throw new Error(`Missing v3.5 behavior: ${token}`)}
 if(app.includes('confirm('))throw new Error('Native confirm dialogs must not be used');
+if(app.includes("rgba(222,76,53")||app.includes("rgba(177,36,50")||app.includes("rgba(255,203,89")) throw new Error('Heatmap must not reuse urgency amber/red palette');
+if(!html.includes('Fångstdata')) throw new Error('Unified Fångstdata layer label missing');
+
 const ids=[...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]);
 const seen=new Set();for(const id of ids){if(seen.has(id))throw new Error(`Duplicate DOM id: ${id}`);seen.add(id)}
 const refs=[...app.matchAll(/\$\('([^']+)'\)/g)].map(m=>m[1]);
 for(const id of new Set(refs)){if(!seen.has(id))throw new Error(`app.js references missing DOM id: ${id}`)}
-console.log('Hummerkartan v3.5.0: situationsstyrt fiske, närhetsförslag, Turer/efterarbete, kart-UX, auth och PWA OK');
+console.log('Hummerkartan v3.6.0: soak-status, smart arbetsförslag, Fångstdata i båda lägen, enhetlig marin UI, Turer/efterarbete och PWA OK');

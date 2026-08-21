@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {SOAK_MS,soakAgeMs,soakStatus,formatSoakAge,soakSummary} from '../soak.js';
+const now=Date.parse('2026-09-25T12:00:00Z');
+const h=n=>n*SOAK_MS.HOUR;
+const trap=(setHours,checkedHours=null)=>({status:'active',set_at:new Date(now-h(setHours)).toISOString(),last_checked_at:checkedHours==null?null:new Date(now-h(checkedHours)).toISOString()});
+assert.equal(soakStatus(trap(5),now),'fresh');
+assert.equal(soakStatus(trap(30),now),'due');
+assert.equal(soakStatus(trap(80),now),'priority');
+assert.equal(soakStatus(trap(100,2),now),'fresh','latest check resets soak age');
+assert.equal(soakAgeMs(trap(100,30),now),h(30));
+assert.equal(formatSoakAge(h(5)),'5 h');
+assert.equal(formatSoakAge(h(50)),'2 dygn 2 h');
+assert.deepEqual(soakSummary([trap(5),trap(30),trap(80),{...trap(80),status:'retrieved'}],now),{fresh:1,due:1,priority:1,unknown:0});
+console.log('Soak status logic OK');

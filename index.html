@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Hummerkartan" />
-  <meta name="theme-color" content="#0B2740" />
+  <meta name="theme-color" content="#0A2233" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Hummerkartan</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css" />
-  <link rel="stylesheet" href="./styles.css?v=3.5.0" />
+  <link rel="stylesheet" href="./styles.css?v=3.6.0" />
   <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
 </head>
 <body>
@@ -30,7 +30,7 @@
     </header>
 
     <div class="mobile-map-tools mobile-only">
-      <button id="mobileHeatmapBtn" class="map-chip glass planning-only" type="button">Fångstkarta</button>
+      <button id="mobileHeatmapBtn" class="map-chip heatmap-chip glass" type="button" aria-pressed="false">Fångstdata</button>
       <button id="centerBtn" class="map-icon glass" type="button" aria-label="Centrera på min position">◎</button>
     </div>
 
@@ -40,11 +40,11 @@
 
     <div id="systemStatusPill" class="system-status glass mobile-only hidden" role="status"></div>
 
-    <aside id="nearbyPlanCard" class="nearby-action glass mobile-only fishing-only hidden" aria-live="polite">
-      <button id="dismissNearbyPlanBtn" class="nearby-dismiss" type="button" aria-label="Dölj förslaget">×</button>
-      <small>NÄRA PLANERAD PUNKT</small>
-      <div><strong id="nearbyPlanName">P1</strong><span id="nearbyPlanDistance">—</span></div>
-      <button id="nearbyPlanSetBtn" class="primary" type="button">Sätt tina här</button>
+    <aside id="nearbyActionCard" class="nearby-action glass mobile-only fishing-only hidden" aria-live="polite">
+      <button id="dismissNearbyActionBtn" class="nearby-dismiss" type="button" aria-label="Dölj förslaget">×</button>
+      <small id="nearbyActionKind">NÄSTA</small>
+      <div><strong id="nearbyActionName">—</strong><span id="nearbyActionMeta">—</span></div>
+      <button id="nearbyActionBtn" class="primary" type="button">Öppna</button>
     </aside>
 
     <div id="planningActions" class="bottom-actions glass mobile-only planning-only">
@@ -101,10 +101,10 @@
         <div class="pane-heading"><div><small>PLACERING</small><h1>Planering</h1></div><button id="desktopSyncBtn" class="small-btn">Synka</button></div>
         <div class="desktop-plan-actions">
           <button id="desktopAddPlannedBtn" class="primary">＋ Planera tina</button>
-          <button id="desktopHeatmapBtn">Fångstkarta</button>
+          <button id="desktopHeatmapBtn" class="layer-button" aria-pressed="false">Fångstdata</button>
           <button id="desktopFitPlanBtn">Visa alla</button>
         </div>
-        <div class="mini-summary"><div><span>Planerade</span><strong id="desktopPlannedCount">0</strong></div><div><span>I vattnet</span><strong id="desktopActiveCount">0</strong></div></div>
+        <div class="mini-summary three"><div><span>Planerade</span><strong id="desktopPlannedCount">0</strong></div><div><span>I vattnet</span><strong id="desktopActiveCount">0</strong></div><div class="status-priority"><span>Prioritera</span><strong id="desktopPriorityCount">0</strong></div></div>
         <div class="section-title"><span>Planerade tinor</span></div>
         <div id="desktopPlannedList" class="desktop-list"></div>
       </section>
@@ -112,6 +112,7 @@
       <section class="desktop-pane" data-desktop-pane="traps">
         <div class="pane-heading"><div><small>REGISTER</small><h1>Tinor</h1></div><button id="desktopAddTrapBtn" class="small-btn primary">Ny tina</button></div>
         <div class="desktop-toolbar"><input id="desktopTrapSearch" type="search" placeholder="Sök tina…" /><button id="desktopActiveFilter" class="chip active">I vattnet</button><button id="desktopAllFilter" class="chip">Alla</button></div>
+        <div id="desktopSoakSummary" class="soak-summary compact"></div>
         <div id="desktopTrapList" class="desktop-list"></div>
       </section>
 
@@ -128,6 +129,9 @@
 
       <section class="desktop-pane" data-desktop-pane="reports">
         <div class="pane-heading"><div><small>HISTORIK</small><h1>Statistik</h1></div><select id="desktopReportYear" class="year-select"></select></div>
+        <div class="section-title report-status-title"><span>Status nu</span></div>
+        <div id="desktopReportSoakSummary" class="soak-summary compact"></div>
+        <div class="section-title"><span>Säsongen</span></div>
         <div id="desktopReportStats" class="report-stats"></div>
         <div class="section-title"><span>Bästa tinor</span></div>
         <div id="desktopBestTraps" class="desktop-list"></div>
@@ -157,6 +161,7 @@
       <div class="sheet-handle"></div>
       <header><div><small>REGISTER</small><h2>Tinor</h2></div><button data-close-sheet class="icon-btn">×</button></header>
       <div class="sheet-toolbar"><button id="showActiveBtn" class="chip active">I vattnet</button><button id="showAllBtn" class="chip">Alla</button><button id="syncBtn" class="chip">Synka</button></div>
+      <div id="trapStatusSummary" class="soak-summary"></div>
       <div id="trapList" class="list"></div>
     </section>
 
@@ -263,7 +268,8 @@
     <section id="reportsView" class="reports-view hidden" aria-label="Statistik">
       <header class="reports-header"><button id="closeReportsBtn" class="icon-btn">‹</button><div><small>HUMMERKARTAN</small><h1>Statistik</h1></div><select id="mobileReportYear" class="year-select"></select></header>
       <div class="reports-scroll">
-        <div id="mobileReportStats" class="report-stats large"></div>
+        <section class="report-section report-status-now"><div class="section-title"><span>Status nu</span></div><div id="mobileReportSoakSummary" class="soak-summary"></div></section>
+        <section class="report-section report-season"><div class="section-title"><span>Säsongen</span></div><div id="mobileReportStats" class="report-stats large"></div></section>
         <section class="report-section"><div class="section-title"><span>Bästa tinor</span></div><div id="mobileBestTraps" class="report-table"></div></section>
         <section class="report-section"><div class="section-title"><span>Senaste fångstdagar</span></div><div id="mobileReportDays" class="report-table"></div></section>
       </div>
@@ -271,6 +277,6 @@
 
     <div id="toast" class="toast hidden" role="status"></div>
   </main>
-  <script type="module" src="./boot.js?v=3.5.0"></script>
+  <script type="module" src="./boot.js?v=3.6.0"></script>
 </body>
 </html>
