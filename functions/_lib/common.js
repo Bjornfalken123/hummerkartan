@@ -80,3 +80,19 @@ export function positionEventStatement(db, eventType, entityId, meta, actor) {
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
     .bind(`${eventType}:${entityId}`,eventType,entityId,meta.lat,meta.lon,meta.accuracy_m,meta.speed_kn,meta.course,meta.fix_at,meta.action_at,meta.timing_error_ms,meta.method,isoNow(),actor);
 }
+
+
+export function tripEventStatement(db, tripId, eventType, entityId, occurredAt, actor) {
+  const tid=text(tripId),eid=text(entityId),at=text(occurredAt);
+  if(!tid||!eid||!at||!['trap_set','check'].includes(eventType))return null;
+  return db.prepare(`INSERT OR IGNORE INTO trip_events (id,trip_id,event_type,entity_id,occurred_at,created_at,actor)
+    VALUES (?,?,?,?,?,?,?)`).bind(`${eventType}:${eid}`,tid,eventType,eid,at,isoNow(),actor);
+}
+
+export function correctionEventStatement(db, entityType, entityId, action, beforeValue, afterValue, actor) {
+  const type=text(entityType),id=text(entityId),act=text(action);
+  if(!['trap','check','trip'].includes(type)||!id||!act)return null;
+  const beforeJson=beforeValue==null?null:JSON.stringify(beforeValue),afterJson=afterValue==null?null:JSON.stringify(afterValue);
+  return db.prepare(`INSERT INTO correction_events (id,entity_type,entity_id,action,before_json,after_json,created_at,actor)
+    VALUES (?,?,?,?,?,?,?,?)`).bind(crypto.randomUUID(),type,id,act,beforeJson,afterJson,isoNow(),actor);
+}

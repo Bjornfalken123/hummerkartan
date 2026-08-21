@@ -30,7 +30,7 @@ export async function onRequestPut(context){
       const current=await readPlan(db,date);
       return json({ok:false,error:"Planen har ändrats på en annan enhet.",conflict:true,...current},409);
     }
-    const planId=existing?.id||crypto.randomUUID(),name=text(body.name,`Hummerrunda ${date}`).slice(0,120);
+    const planId=existing?.id||crypto.randomUUID(),name=text(body.name,`Hummertur ${date}`).slice(0,120);
     if(existing){
       await db.prepare("UPDATE day_plans SET name=?,updated_at=?,updated_by=? WHERE id=?").bind(name,now,actor,planId).run();
     }else{
@@ -43,7 +43,7 @@ export async function onRequestPut(context){
       const lat=finite(raw.lat),lon=finite(raw.lon);if(lat==null||lon==null||Math.abs(lat)>90||Math.abs(lon)>180)continue;
       const kind=raw.kind==="spot"?"spot":"trap",trapId=kind==="trap"?text(raw.trap_id)||null:null;
       statements.push(db.prepare(`INSERT INTO day_plan_items (id,plan_id,seq,kind,trap_id,name,lat,lon,notes,created_at,updated_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)`).bind(text(raw.id)||crypto.randomUUID(),planId,seq++,kind,trapId,text(raw.name,kind==="spot"?"Planerad plats":"Bur").slice(0,100),lat,lon,text(raw.notes).slice(0,500),now,now));
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)`).bind(text(raw.id)||crypto.randomUUID(),planId,seq++,kind,trapId,text(raw.name,kind==="spot"?"Planerad plats":"Tina").slice(0,100),lat,lon,text(raw.notes).slice(0,500),now,now));
     }
     await db.batch(statements);
     const result=await readPlan(db,date);

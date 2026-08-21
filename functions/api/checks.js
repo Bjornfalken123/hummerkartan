@@ -1,4 +1,4 @@
-import { getDb, json, dbError, actorFromContext, readJson, finite, text, uuid, isoNow, validLatLon, positionMetaFromBody, positionEventStatement } from "../_lib/common.js";
+import { getDb, json, dbError, actorFromContext, readJson, finite, text, uuid, isoNow, validLatLon, positionMetaFromBody, positionEventStatement, tripEventStatement } from "../_lib/common.js";
 
 export async function onRequestPost(context) {
   try {
@@ -11,7 +11,7 @@ export async function onRequestPost(context) {
     const notes=text(body.notes).slice(0,1000),created=isoNow();
     const statements=[db.prepare(`INSERT OR IGNORE INTO checks (id,trap_id,checked_at,lobster_count,released_count,notes,lat,lon,actor,created_at)
       VALUES (?,?,?,?,?,?,?,?,?,?)`).bind(id,trapId,checkedAt,lobsterCount,releasedCount,notes,lat,lon,actor,created)];
-    if(lat!=null&&lon!=null){const meta=positionMetaFromBody(body,lat,lon),event=positionEventStatement(db,'check',id,meta,actor);if(event)statements.push(event)}
+    if(lat!=null&&lon!=null){const meta=positionMetaFromBody(body,lat,lon),event=positionEventStatement(db,'check',id,meta,actor);if(event)statements.push(event)}const tripEvent=tripEventStatement(db,body.trip_id,'check',id,checkedAt,actor);if(tripEvent)statements.push(tripEvent)
     statements.push(db.prepare(`UPDATE traps SET
       last_checked_at=CASE WHEN last_checked_at IS NULL OR last_checked_at < ? THEN ? ELSE last_checked_at END,
       updated_at=CASE WHEN last_checked_at IS NULL OR last_checked_at < ? THEN ? ELSE updated_at END,

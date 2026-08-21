@@ -1,6 +1,6 @@
 import { getDb, json, dbError } from "../_lib/common.js";
 
-// Heatmapen visar resultat per litet område, inte bara total fångst per bur.
+// Heatmapen visar resultat per litet område, inte bara total fångst per tina.
 // Rutstorleken är ungefär 200–250 m på svenska västkusten.
 const LAT_CELL=0.0020;
 const LON_CELL=0.0035;
@@ -37,7 +37,7 @@ export async function onRequestGet(context){
       const confidence=Math.min(1,Math.sqrt(cell.check_count/4));
       return {
         id:cell.key,
-        name:cell.names.length===1?cell.names[0]:`${cell.names.length} burplatser`,
+        name:cell.names.length===1?cell.names[0]:`${cell.names.length} platser`,
         lat:cell.lat_sum/Math.max(1,cell.check_count),
         lon:cell.lon_sum/Math.max(1,cell.check_count),
         check_count:cell.check_count,

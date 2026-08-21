@@ -10,7 +10,7 @@ function bootMessage(text, error = false) {
 
 async function startApp() {
   boot?.classList.add('hidden');
-  await import('./app.js?v=3.4.0');
+  await import('./app.js?v=3.5.0');
 }
 
 function priorOfflineAuthIsValid() {
