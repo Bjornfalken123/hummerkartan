@@ -191,3 +191,121 @@ body.night{--bg:#030d15;--panel:#061522;--surface:#0a1d2b;--surface-2:#0d2536;--
 
 .desktop-check-time{display:none!important}
 @media(min-width:900px){.desktop-check-time{display:grid!important}}
+
+/* v3.6.5 — interface rhythm, control contrast and spacing */
+:root{
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;
+  --control-bg:rgba(6,24,38,.96);--control-border:rgba(211,232,243,.22);--control-shadow:0 9px 24px rgba(0,0,0,.30);
+}
+
+/* Map controls: strong enough to read on both light sea/land and dark tiles */
+.map-icon{width:46px;height:46px;border-radius:14px;background:var(--control-bg)!important;border:1px solid var(--control-border)!important;color:#f6fbff;box-shadow:var(--control-shadow)!important;backdrop-filter:blur(18px)}
+#mobileMenuBtn.menu-control{background:#0b2a40!important;border-color:rgba(224,241,249,.30)!important;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.36),inset 0 0 0 1px rgba(255,255,255,.04)!important}
+#mobileMenuBtn.menu-control svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#centerBtn{font-size:18px;font-weight:800}
+.map-chip{height:40px;min-width:120px;max-width:none;padding:0 13px;gap:8px;background:var(--control-bg);border-color:var(--control-border);color:#e6f1f7;font-size:10.5px;font-weight:850;white-space:nowrap;overflow:visible;text-overflow:clip;box-shadow:var(--control-shadow)}
+.heatmap-chip:before{width:8px;height:8px;flex-basis:8px}
+.mobile-map-tools{top:calc(var(--safe-top) + 70px);gap:10px}
+.mode-switch{height:46px;width:min(270px,calc(100vw - 112px));padding:4px;background:var(--control-bg);border-color:var(--control-border);box-shadow:var(--control-shadow)}
+.mobile-top{top:calc(var(--safe-top) + 10px);left:10px;right:10px}
+
+/* Shared typography rhythm */
+.sheet header small,.pane-heading small,.reports-header small{line-height:1.35}
+.sheet header h2,.pane-heading h1,.reports-header h1{line-height:1.16}
+.section-title{margin:var(--space-5) 0 10px;line-height:1.25}
+
+/* Sheets and forms */
+.sheet{padding:10px var(--space-4) calc(var(--safe-bottom) + 18px);border-radius:22px 22px 0 0}
+.sheet-handle{margin:2px auto 14px}
+.sheet header{padding:2px 0 var(--space-4);gap:var(--space-3)}
+.sheet-toolbar{gap:var(--space-2);padding:0 0 14px;flex-wrap:wrap}
+.form,.check-form{gap:var(--space-4)}
+.form label,.more-fields label{gap:var(--space-2);font-size:10.5px;line-height:1.3}
+.form input,.form textarea,.more-fields input,.more-fields textarea,.desktop-toolbar input,.year-select{padding:11px 12px;line-height:1.35}
+.form input,.more-fields input,.desktop-toolbar input,.year-select{min-height:44px}
+.form textarea,.more-fields textarea{min-height:76px;resize:vertical}
+.detail-actions,.confirm-actions{gap:10px}
+.detail-actions button,.confirm-actions button,.selection-actions button{height:46px;border-radius:12px}
+.more-fields{padding:13px 14px;border-radius:13px}
+.more-fields summary{line-height:1.35;padding:1px 0}
+.more-fields[open]{gap:14px}.more-fields[open] summary{margin-bottom:2px}
+.set-trap-confirm{padding:18px 10px 22px;gap:var(--space-2)}
+.confirm-text{padding:2px 0 18px;font-size:12px;line-height:1.55}
+.trip-summary{gap:10px;margin:6px 0 var(--space-4)}
+.completion-stats{gap:10px;margin:4px 0 18px}
+
+/* Selection / contextual cards */
+.bottom-actions{height:68px;padding:8px;border-radius:20px;gap:8px}
+.bottom-actions button{height:52px;border-radius:13px;padding:0 14px;line-height:1.2}
+.selection-card{padding:var(--space-4);border-radius:20px;bottom:calc(var(--safe-bottom) + 90px)}
+.selection-head{gap:var(--space-3)}
+.selection-head h2{margin-top:3px;line-height:1.15}
+.selection-meta{min-height:0;padding:10px 0 14px;line-height:1.45}
+.selection-actions{gap:10px}
+.card-close{right:9px;top:9px;width:34px;height:34px;border-radius:10px;display:grid;place-items:center}
+.nearby-action{bottom:calc(var(--safe-bottom) + 90px);padding:13px 46px 13px 15px;gap:7px 12px}
+.nearby-action>div{gap:10px}.nearby-action>div span{line-height:1.25}
+.placement-bar{height:68px;padding:8px;border-radius:20px;gap:8px}
+.placement-bar button{border-radius:13px}
+
+/* Lists and menus */
+.list,.desktop-list,.trip-history-list,.report-table{gap:var(--space-2)}
+.list-row,.desktop-row{gap:10px;padding:11px;border-radius:13px}
+.list-row strong,.desktop-row strong{line-height:1.25}
+.list-row small,.desktop-row small{margin-top:4px;line-height:1.35}
+.menu-list{gap:var(--space-2)}
+.menu-list button{min-height:64px;grid-template-columns:42px 1fr;column-gap:12px;row-gap:3px;padding:11px 12px;border-radius:13px;align-content:center}
+.menu-list button>span{width:40px;height:40px;border-radius:11px}
+.menu-list button strong{font-size:13.5px;line-height:1.2}
+.menu-list button small{font-size:10px;line-height:1.3}
+.soak-summary{gap:var(--space-2);margin-bottom:14px}
+.soak-summary.compact{margin-bottom:12px}
+.soak-key{height:34px;padding:0 8px}
+
+/* Reports/statistics */
+.reports-header{padding:calc(var(--safe-top) + 14px) var(--space-4) 12px;gap:var(--space-3)}
+.reports-scroll{padding:18px var(--space-4) calc(var(--safe-bottom) + 28px)}
+.report-section{margin-top:var(--space-6)}
+.report-stats{gap:10px}
+.report-stats>div,.completion-stats>div,.trip-summary-grid>div,.mini-summary>div{padding:14px}
+.report-row{gap:var(--space-3);padding:13px 12px}
+.report-row small{margin-top:4px;line-height:1.35}
+.trip-history-row{padding:14px;gap:var(--space-3)}
+.trip-history-row small{margin-top:4px;line-height:1.35}
+.trip-event-row{gap:10px;padding:11px}
+.trip-event-row small{margin-top:4px;line-height:1.35}
+
+/* Desktop rhythm */
+@media(min-width:900px){
+  .desktop-brand{height:72px;padding:12px 14px;gap:10px}
+  .desktop-tabs{height:54px;padding:8px 10px;gap:6px}
+  .desktop-pane{padding:18px}
+  .pane-heading{margin-bottom:var(--space-4);gap:var(--space-3)}
+  .desktop-plan-actions{gap:var(--space-2)}
+  .desktop-plan-actions button{height:42px;padding:0 10px;line-height:1.2}
+  .mini-summary{gap:var(--space-2);margin-top:var(--space-3)}
+  .desktop-toolbar{gap:var(--space-2);margin-bottom:var(--space-3)}
+  .desktop-toolbar input{height:40px}
+  .desktop-trip-row{padding:12px;gap:10px}
+  .trip-detail-panel{margin-top:var(--space-4);padding-top:10px}
+  .desktop-footer{height:52px;padding:9px 14px}
+  .sheet{padding:10px 18px 18px}
+  .maplibregl-ctrl-bottom-right{bottom:10px!important}
+}
+
+/* Small phones keep the rhythm, only tighten outer gutters. */
+@media(max-width:390px){
+  .mobile-top{left:8px;right:8px}.mobile-map-tools{right:8px}
+  .bottom-actions,.selection-card,.placement-bar,.nearby-action{left:8px;right:8px}
+  .trip-pill,.system-status{left:8px}
+  .map-chip{min-width:116px;padding:0 11px;font-size:10px}
+  .sheet{padding-left:14px;padding-right:14px}
+}
+@media(max-width:340px){
+  .mode-switch{width:calc(100vw - 112px)}
+  .map-chip{min-width:112px;font-size:9.8px}
+  .menu-list button{grid-template-columns:40px 1fr;padding:10px}
+}
+
+/* No MapTiler zoom +/- UI. Attribution remains available. */
+.maplibregl-ctrl-zoom-in,.maplibregl-ctrl-zoom-out{display:none!important}

@@ -5,19 +5,34 @@ import { getDb, json, dbError } from "../_lib/common.js";
 const LAT_CELL=0.0020;
 const LON_CELL=0.0035;
 
+async function hasTable(db,name){
+  try{return Boolean(await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=? LIMIT 1").bind(name).first())}catch{return false}
+}
+
 export async function onRequestGet(context){
   try{
-    const db=getDb(context);
-    const rows=await db.prepare(`
+    const db=getDb(context),withLegacySnapshots=await hasTable(db,'check_locations');
+    // Nya checks.lat/lon är den frysta tina-/fångstplatsen. Om 0006 finns prioriteras
+    // dess snapshots för äldre data eftersom äldre checks.lat/lon kunde vara telefon-GPS.
+    const sql=withLegacySnapshots?`
       SELECT c.id,c.trap_id,t.name,
-             COALESCE(cl.trap_lat,t.lat) AS lat,
-             COALESCE(cl.trap_lon,t.lon) AS lon,
+             COALESCE(cl.trap_lat,c.lat,t.lat) AS lat,
+             COALESCE(cl.trap_lon,c.lon,t.lon) AS lon,
              c.lobster_count,c.checked_at
       FROM checks c
       JOIN traps t ON t.id=c.trap_id
       LEFT JOIN check_locations cl ON cl.check_id=c.id
       ORDER BY c.checked_at
-    `).all();
+    `:`
+      SELECT c.id,c.trap_id,t.name,
+             COALESCE(c.lat,t.lat) AS lat,
+             COALESCE(c.lon,t.lon) AS lon,
+             c.lobster_count,c.checked_at
+      FROM checks c
+      JOIN traps t ON t.id=c.trap_id
+      ORDER BY c.checked_at
+    `;
+    const rows=await db.prepare(sql).all();
 
     const cells=new Map();
     for(const row of rows.results||[]){
@@ -33,20 +48,8 @@ export async function onRequestGet(context){
 
     let points=[...cells.values()].map(cell=>{
       const avg=cell.check_count?cell.lobster_count/cell.check_count:0;
-      // Ett enstaka lyckat vittjningstillfälle ska inte dominera kartan.
-      // Full visuell tilltro nås från fyra vittjningar i området.
       const confidence=Math.min(1,Math.sqrt(cell.check_count/4));
-      return {
-        id:cell.key,
-        name:cell.names.length===1?cell.names[0]:`${cell.names.length} platser`,
-        lat:cell.lat_sum/Math.max(1,cell.check_count),
-        lon:cell.lon_sum/Math.max(1,cell.check_count),
-        check_count:cell.check_count,
-        lobster_count:cell.lobster_count,
-        avg_catch:avg,
-        score:avg*confidence,
-        last_checked_at:cell.last_checked_at
-      };
+      return {id:cell.key,name:cell.names.length===1?cell.names[0]:`${cell.names.length} platser`,lat:cell.lat_sum/Math.max(1,cell.check_count),lon:cell.lon_sum/Math.max(1,cell.check_count),check_count:cell.check_count,lobster_count:cell.lobster_count,avg_catch:avg,score:avg*confidence,last_checked_at:cell.last_checked_at};
     });
 
     const maxScore=Math.max(0,...points.map(p=>p.score));
